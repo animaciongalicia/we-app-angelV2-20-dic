@@ -552,50 +552,76 @@
         /* DAFO Grid */
         .dafo-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
+            grid-template-columns: 1fr;
+            gap: 1.25rem;
             margin-top: 1rem;
         }
 
-        @media (max-width: 640px) {
-            .dafo-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
         .dafo-item {
-            padding: 1.25rem;
+            padding: 1.5rem;
             border-radius: 12px;
-            color: white;
+            border-left: 5px solid;
         }
 
-        .dafo-item.fortalezas { background: var(--green); }
-        .dafo-item.debilidades { background: var(--red); }
-        .dafo-item.oportunidades { background: var(--blue); }
-        .dafo-item.amenazas { background: var(--orange); }
+        .dafo-item.fortalezas {
+            background: rgba(76, 175, 80, 0.08);
+            border-left-color: var(--green);
+            color: var(--black);
+        }
+        .dafo-item.debilidades {
+            background: rgba(239, 83, 80, 0.08);
+            border-left-color: var(--red);
+            color: var(--black);
+        }
+        .dafo-item.oportunidades {
+            background: rgba(33, 150, 243, 0.08);
+            border-left-color: var(--blue);
+            color: var(--black);
+        }
+        .dafo-item.amenazas {
+            background: rgba(255, 152, 0, 0.08);
+            border-left-color: var(--orange);
+            color: var(--black);
+        }
 
         .dafo-item h3 {
-            font-size: 1rem;
-            margin-bottom: 0.75rem;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
             font-family: 'DM Sans', sans-serif;
             font-weight: 700;
         }
 
+        .dafo-item.fortalezas h3 { color: #2E7D32; }
+        .dafo-item.debilidades h3 { color: #C62828; }
+        .dafo-item.oportunidades h3 { color: #1565C0; }
+        .dafo-item.amenazas h3 { color: #E65100; }
+
         .dafo-item ul {
             list-style: none;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
         }
 
         .dafo-item li {
-            padding: 0.25rem 0;
-            padding-left: 1.25rem;
+            padding: 0.4rem 0;
+            padding-left: 1.5rem;
             position: relative;
+            line-height: 1.5;
         }
 
         .dafo-item li::before {
-            content: "•";
+            content: "→";
             position: absolute;
             left: 0;
+            color: var(--gray);
+        }
+
+        .dafo-item p.dafo-summary {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(0,0,0,0.1);
+            font-size: 0.9rem;
+            color: var(--gray);
+            font-style: italic;
         }
 
         /* Critical Points */
@@ -1627,139 +1653,400 @@
             return recommendations[formData.budget] || recommendations['5-10k'];
         }
 
+        function getCompanyAgeAnalysis() {
+            const analyses = {
+                '<3': {
+                    context: 'Como empresa joven, tienes la ventaja de poder construir una identidad sólida desde el principio, evitando los errores comunes de marcas que crecieron sin estrategia.',
+                    opportunity: 'Establecer una base de marca profesional ahora te ahorrará costosas correcciones futuras y te posicionará por delante de competidores de tu misma antigüedad.'
+                },
+                '3-10': {
+                    context: 'Tu empresa está en fase de crecimiento y consolidación. Es el momento perfecto para profesionalizar la marca antes de que los problemas de imagen se arraiguen.',
+                    opportunity: 'Invertir ahora en tu marca amplificará cada euro que destines a marketing y ventas, maximizando el retorno de tu fase de expansión.'
+                },
+                '10-25': {
+                    context: 'Con una trayectoria consolidada, tienes credibilidad en el mercado pero posiblemente una imagen que no refleja tu evolución y madurez actual.',
+                    opportunity: 'Un rebranding estratégico puede revitalizar la percepción del mercado sin perder el capital de marca construido durante años.'
+                },
+                '25+': {
+                    context: 'Tu empresa veterana tiene un legado valioso, pero el riesgo de parecer anticuada es real. El equilibrio entre tradición y modernidad es clave.',
+                    opportunity: 'Modernizar tu imagen manteniendo elementos de herencia puede convertir tu antigüedad en un diferencial de confianza y experiencia.'
+                }
+            };
+            return analyses[formData.companyAge] || analyses['3-10'];
+        }
+
+        function getSectorInsights() {
+            const insights = {
+                'servicios': {
+                    challenge: 'En servicios profesionales, la marca ES el producto. Los clientes compran confianza antes de ver resultados, y tu imagen es la primera prueba de tu profesionalidad.',
+                    opportunity: 'Una marca bien construida puede justificar tarifas hasta un 40% superiores en servicios profesionales.',
+                    specific: 'El sector servicios depende enormemente de la percepción de expertise. Tu marca debe comunicar conocimiento, fiabilidad y resultados.'
+                },
+                'comercio': {
+                    challenge: 'El comercio vive de la experiencia de compra. En un entorno donde Amazon domina por precio, tu marca es tu única defensa para crear preferencia.',
+                    opportunity: 'Las marcas de comercio con identidad fuerte generan un 23% más de repetición de compra.',
+                    specific: 'En retail, cada punto de contacto cuenta: desde el escaparate hasta el packaging. La coherencia es fundamental.'
+                },
+                'hosteleria': {
+                    challenge: 'La hostelería es experiencia pura. Los clientes deciden en segundos si un local "es para ellos" basándose en señales visuales.',
+                    opportunity: 'Un rebranding en hostelería puede incrementar el ticket medio un 15-25% al atraer un perfil de cliente diferente.',
+                    specific: 'La marca en hostelería debe crear atmósfera antes de que el cliente cruce la puerta. Redes sociales son tu escaparate 24/7.'
+                },
+                'industrial': {
+                    challenge: 'El B2B industrial tradicionalmente ha descuidado la marca, pero los compradores profesionales también son humanos que confían en señales visuales.',
+                    opportunity: 'En mercados industriales saturados, la marca diferenciada puede ser el factor decisivo en licitaciones y negociaciones.',
+                    specific: 'Una marca industrial profesional transmite capacidad, fiabilidad y seriedad: exactamente lo que buscan tus clientes corporativos.'
+                },
+                'salud': {
+                    challenge: 'En salud, la confianza es no negociable. Tu marca debe transmitir profesionalidad, cuidado y modernidad sin perder calidez humana.',
+                    opportunity: 'Los pacientes están dispuestos a pagar más y desplazarse más lejos por proveedores de salud que perciben como premium.',
+                    specific: 'El sector salud requiere un equilibrio delicado entre innovación tecnológica y cercanía humana. Tu marca debe comunicar ambos.'
+                },
+                'otro': {
+                    challenge: 'Independientemente del sector, la marca es tu herramienta más poderosa para diferenciarte y crear preferencia en la mente del cliente.',
+                    opportunity: 'Una marca bien posicionada puede transformar la dinámica competitiva de cualquier mercado.',
+                    specific: 'Cada sector tiene sus códigos visuales. Entenderlos y diferenciar dentro de ellos es clave para destacar.'
+                }
+            };
+            return insights[formData.businessType] || insights['otro'];
+        }
+
+        function getDAFOFortalezas() {
+            const items = [];
+
+            // Por antigüedad de empresa
+            if (formData.companyAge === '25+') {
+                items.push('Más de 25 años de trayectoria demuestran solidez y fiabilidad');
+                items.push('Base de clientes establecida y relaciones comerciales maduras');
+                items.push('Conocimiento profundo del sector y sus dinámicas');
+            } else if (formData.companyAge === '10-25') {
+                items.push('Trayectoria consolidada que aporta credibilidad');
+                items.push('Experiencia acumulada en el sector');
+                items.push('Red de contactos y reputación construida');
+            } else if (formData.companyAge === '3-10') {
+                items.push('Empresa en fase de crecimiento con energía y adaptabilidad');
+                items.push('Flexibilidad para implementar cambios sin estructuras rígidas');
+            } else {
+                items.push('Agilidad y capacidad de adaptación rápida');
+                items.push('Sin lastres de identidades anteriores que limiten');
+            }
+
+            // Por consciencia del problema
+            items.push('Consciencia activa de la necesidad de mejora (el primer paso es reconocerlo)');
+            items.push('Disposición para invertir en el activo más importante: la marca');
+
+            // Por presupuesto
+            if (formData.budget === '10-20k' || formData.budget === '20k+') {
+                items.push('Recursos suficientes para una transformación integral');
+            }
+
+            // Por objetivos
+            if (formData.goals.includes('diferenciacion')) {
+                items.push('Visión clara de la necesidad de diferenciación');
+            }
+
+            return items;
+        }
+
+        function getDAFODebilidades() {
+            const items = [];
+
+            // Por punto de dolor principal
+            const painPoints = {
+                'outdated': 'Imagen visual desactualizada que genera percepción de empresa del pasado',
+                'inconsistent': 'Falta de coherencia visual que diluye el mensaje de marca',
+                'invisible': 'Bajo reconocimiento y visibilidad en el mercado',
+                'premium': 'Desalineación entre el valor real ofrecido y la percepción del mercado'
+            };
+            items.push(painPoints[formData.painPoint]);
+
+            // Por elementos afectados
+            if (formData.elements.includes('todo')) {
+                items.push('Necesidad de intervención en todos los elementos de identidad');
+                items.push('Ausencia de sistema visual coherente y profesional');
+            } else {
+                if (formData.elements.length >= 4) {
+                    items.push(`Múltiples elementos requieren atención simultánea (${formData.elements.length} áreas identificadas)`);
+                }
+                if (formData.elements.includes('logo')) {
+                    items.push('Logo actual no cumple su función como elemento central de identidad');
+                }
+                if (formData.elements.includes('web')) {
+                    items.push('Presencia digital que no refleja la realidad de la empresa');
+                }
+            }
+
+            // Por antigüedad de marca
+            if (formData.brandAge === '10+') {
+                items.push('Identidad visual sin actualizar en más de una década');
+                items.push('Posible desconexión con tendencias y expectativas actuales del mercado');
+            } else if (formData.brandAge === '4-10') {
+                items.push('Identidad visual en zona de obsolescencia');
+            }
+
+            // Por oportunidades perdidas
+            if (formData.lostOpportunities === 'si') {
+                items.push('Historial confirmado de pérdida de oportunidades por imagen');
+                items.push('Coste de oportunidad acumulado difícil de cuantificar');
+            } else if (formData.lostOpportunities === 'probablemente') {
+                items.push('Sospecha de impacto negativo en conversión comercial');
+            }
+
+            return items;
+        }
+
+        function getDAFOOportunidades() {
+            const items = [];
+
+            // Oportunidades base
+            items.push('Reposicionamiento estratégico para captar nuevos segmentos de mercado');
+            items.push('Diferenciación clara frente a competidores con marcas genéricas');
+
+            // Por sector
+            const sectorOps = {
+                'servicios': 'Justificación de tarifas premium mediante percepción de valor',
+                'comercio': 'Creación de experiencia de marca que fidelice más allá del precio',
+                'hosteleria': 'Atracción de perfil de cliente dispuesto a mayor ticket medio',
+                'industrial': 'Ventaja competitiva en procesos de licitación y negociación B2B',
+                'salud': 'Captación de pacientes que priorizan calidad sobre proximidad',
+                'otro': 'Construcción de ventaja competitiva sostenible basada en marca'
+            };
+            items.push(sectorOps[formData.businessType] || sectorOps['otro']);
+
+            // Por objetivos
+            if (formData.goals.includes('expansion')) {
+                items.push('Base sólida de marca para soportar crecimiento y expansión geográfica');
+            }
+            if (formData.goals.includes('premium')) {
+                items.push('Posibilidad de incrementar márgenes con posicionamiento premium');
+            }
+            if (formData.goals.includes('clientes')) {
+                items.push('Mayor efectividad de cada euro invertido en captación');
+            }
+            if (formData.goals.includes('confianza')) {
+                items.push('Aceleración del ciclo de venta mediante confianza instantánea');
+            }
+
+            // Por momento
+            items.push('Digitalización del mercado hace más relevante que nunca una marca coherente');
+            items.push('Competidores lentos en adaptarse dejan espacio para diferenciarse');
+
+            return items;
+        }
+
+        function getDAFOAmenazas() {
+            const items = [];
+
+            // Amenazas generales
+            items.push('Competidores invirtiendo activamente en su imagen y posicionamiento');
+            items.push('Erosión progresiva de cuota de mercado por percepción negativa');
+            items.push('Dificultad creciente para atraer talento con imagen poco atractiva');
+
+            // Por sector
+            if (formData.businessType === 'comercio') {
+                items.push('Presión de ecommerce y grandes superficies con marcas potentes');
+            } else if (formData.businessType === 'hosteleria') {
+                items.push('Nuevos competidores nativos digitales con imagen cuidada desde el inicio');
+            } else if (formData.businessType === 'servicios') {
+                items.push('Commoditización del sector si no hay diferenciación clara');
+            }
+
+            // Por timeline
+            if (formData.timeline === 'urgente') {
+                items.push('Riesgo de decisiones precipitadas por presión temporal');
+            } else if (formData.timeline === 'planificando') {
+                items.push('La inacción prolongada permite a competidores consolidar posiciones');
+            }
+
+            // Por situación actual
+            if (formData.brandAge === '10+') {
+                items.push('Cada día que pasa aumenta la brecha con expectativas del mercado');
+            }
+            if (formData.lostOpportunities === 'si') {
+                items.push('Patrón de pérdida de oportunidades continuará sin intervención');
+            }
+
+            items.push('Cambios generacionales en tu audiencia con expectativas visuales diferentes');
+
+            return items;
+        }
+
         function renderReport() {
             const urgency = getUrgencyLevel();
             const budgetRec = getBudgetRecommendation();
+            const companyAnalysis = getCompanyAgeAnalysis();
+            const sectorInsights = getSectorInsights();
+            const fortalezas = getDAFOFortalezas();
+            const debilidades = getDAFODebilidades();
+            const oportunidades = getDAFOOportunidades();
+            const amenazas = getDAFOAmenazas();
 
             const reportHTML = `
                 <div class="report active" id="reportContent">
                     <div class="report-header">
                         <h1>Diagnóstico de Marca</h1>
-                        <p>Preparado para ${formData.name} · ${formData.company}</p>
+                        <p>Informe personalizado para <strong>${formData.name}</strong> · <strong>${formData.company}</strong></p>
                         <p style="font-size: 0.85rem; margin-top: 0.5rem;">Fecha: ${new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
                     </div>
 
                     <div class="urgency-box" style="background: linear-gradient(135deg, ${urgency.color}, ${urgency.color}dd);">
-                        <div class="urgency-level">⚠️ URGENCIA: ${urgency.level}</div>
+                        <div class="urgency-level">⚠️ NIVEL DE URGENCIA: ${urgency.level}</div>
                         <div class="urgency-message">${getPainPointMessage()}</div>
                         <div class="urgency-quote">"Mañana es tarde. Tu competencia no está esperando."</div>
                     </div>
 
                     <div class="report-section">
-                        <h2>Diagnóstico inicial</h2>
-                        <p><strong>${formData.company}</strong> es una empresa de ${getBusinessTypeText()} con ${formData.companyAge === '<3' ? 'menos de 3' : formData.companyAge === '3-10' ? '3 a 10' : formData.companyAge === '10-25' ? '10 a 25' : 'más de 25'} años de trayectoria que necesita intervención en ${getElementsText()}.</p>
-                        <p style="margin-top: 1rem;">La identidad visual actual tiene ${formData.brandAge === '0-3' ? 'entre 0 y 3 años' : formData.brandAge === '4-10' ? 'entre 4 y 10 años' : 'más de 10 años'}, lo que ${formData.brandAge === '10+' ? 'indica una clara necesidad de actualización' : formData.brandAge === '4-10' ? 'sugiere que es momento de revisar su vigencia' : 'puede requerir ajustes puntuales'}.</p>
+                        <h2>Resumen ejecutivo</h2>
+                        <p><strong>${formData.company}</strong> es una empresa de <strong>${getBusinessTypeText()}</strong> con <strong>${formData.companyAge === '<3' ? 'menos de 3' : formData.companyAge === '3-10' ? '3 a 10' : formData.companyAge === '10-25' ? '10 a 25' : 'más de 25'} años</strong> de trayectoria que ha identificado la necesidad de intervenir en su identidad visual.</p>
+
+                        <p style="margin-top: 1rem;">${companyAnalysis.context}</p>
+
+                        <p style="margin-top: 1rem;">Los elementos que requieren atención prioritaria son: <strong>${getElementsText()}</strong>. La identidad visual actual tiene <strong>${formData.brandAge === '0-3' ? 'entre 0 y 3 años' : formData.brandAge === '4-10' ? 'entre 4 y 10 años' : 'más de 10 años'}</strong>, lo que ${formData.brandAge === '10+' ? 'indica una necesidad clara e inmediata de actualización para mantener relevancia en el mercado' : formData.brandAge === '4-10' ? 'sitúa la marca en zona de revisión necesaria antes de que la obsolescencia se haga evidente' : 'permite trabajar en optimización y profesionalización sin partir de cero'}.</p>
+
                         ${formData.brandPain ? `<div class="user-quote">"${formData.brandPain}"</div>` : ''}
-                        <p style="margin-top: 1rem;">Tus objetivos principales son: ${getGoalsText()}.</p>
+                    </div>
+
+                    <div class="report-section">
+                        <h2>Análisis sectorial</h2>
+                        <p><strong>El desafío en ${getBusinessTypeText()}:</strong> ${sectorInsights.challenge}</p>
+                        <p style="margin-top: 1rem;"><strong>Dato clave:</strong> ${sectorInsights.opportunity}</p>
+                        <p style="margin-top: 1rem;">${sectorInsights.specific}</p>
+                    </div>
+
+                    <div class="report-section">
+                        <h2>Objetivos identificados</h2>
+                        <p>Has señalado los siguientes objetivos estratégicos para tu marca:</p>
+                        <ul style="margin-top: 1rem; padding-left: 1.5rem;">
+                            ${formData.goals.map(g => {
+                                const goalDetails = {
+                                    'premium': '<li><strong>Posicionamiento premium:</strong> Transmitir calidad y justificar precios superiores a través de una imagen que comunique valor</li>',
+                                    'diferenciacion': '<li><strong>Diferenciación:</strong> Destacar frente a competidores y crear una identidad única y reconocible</li>',
+                                    'modernizar': '<li><strong>Modernización:</strong> Actualizar la imagen para conectar con audiencias actuales y futuras</li>',
+                                    'confianza': '<li><strong>Generar confianza:</strong> Construir credibilidad instantánea que acelere la decisión de compra</li>',
+                                    'clientes': '<li><strong>Atraer clientes:</strong> Mejorar la captación y convertir más oportunidades en ventas</li>',
+                                    'expansion': '<li><strong>Expansión:</strong> Preparar la marca para crecer a nuevos mercados o territorios</li>'
+                                };
+                                return goalDetails[g] || '';
+                            }).join('')}
+                        </ul>
+                        ${formData.vision ? `<p style="margin-top: 1.5rem;"><strong>Tu visión a 2 años:</strong> "${formData.vision}"</p><p style="margin-top: 0.5rem; color: var(--gray);">Esta visión es alcanzable con una estrategia de marca coherente y bien ejecutada. El primer paso es alinear tu identidad visual con esta aspiración.</p>` : ''}
+                        ${formData.inspiration ? `<p style="margin-top: 1rem;"><strong>Marca que te inspira:</strong> ${formData.inspiration}</p><p style="margin-top: 0.5rem; color: var(--gray);">Analizar qué hace que esta marca te resulte atractiva nos ayudará a identificar los códigos visuales y estratégicos que resuenan con tu visión.</p>` : ''}
                     </div>
 
                     <div class="report-section">
                         <h2>Análisis DAFO</h2>
+                        <p style="margin-bottom: 1.5rem; color: var(--gray);">Evaluación estratégica basada en la información proporcionada:</p>
                         <div class="dafo-grid">
                             <div class="dafo-item fortalezas">
-                                <h3>💪 Fortalezas</h3>
+                                <h3>💪 FORTALEZAS</h3>
                                 <ul>
-                                    <li>Trayectoria y experiencia en el sector</li>
-                                    <li>Consciencia de la necesidad de cambio</li>
-                                    <li>Disposición para invertir en la marca</li>
-                                    ${formData.companyAge === '10-25' || formData.companyAge === '25+' ? '<li>Reputación construida con el tiempo</li>' : ''}
+                                    ${fortalezas.map(f => `<li>${f}</li>`).join('')}
                                 </ul>
+                                <p class="dafo-summary">Estos activos son la base sobre la que construir. Un rebranding inteligente potenciará estas fortalezas en lugar de descartarlas.</p>
                             </div>
                             <div class="dafo-item debilidades">
-                                <h3>⚡ Debilidades</h3>
+                                <h3>⚠️ DEBILIDADES</h3>
                                 <ul>
-                                    <li>${formData.painPoint === 'outdated' ? 'Imagen visual desfasada' : formData.painPoint === 'inconsistent' ? 'Falta de coherencia visual' : formData.painPoint === 'invisible' ? 'Baja visibilidad en el mercado' : 'Desconexión entre valor y percepción'}</li>
-                                    <li>Elementos de marca que necesitan actualización</li>
-                                    ${formData.lostOpportunities === 'si' ? '<li>Pérdida de oportunidades comerciales</li>' : ''}
-                                    ${formData.brandAge === '10+' ? '<li>Identidad con más de 10 años sin renovar</li>' : ''}
+                                    ${debilidades.map(d => `<li>${d}</li>`).join('')}
                                 </ul>
+                                <p class="dafo-summary">Cada debilidad identificada es una oportunidad de mejora. La buena noticia: todas son corregibles con la estrategia adecuada.</p>
                             </div>
                             <div class="dafo-item oportunidades">
-                                <h3>🚀 Oportunidades</h3>
+                                <h3>🚀 OPORTUNIDADES</h3>
                                 <ul>
-                                    <li>Reposicionamiento estratégico en el mercado</li>
-                                    <li>Diferenciación frente a competidores</li>
-                                    <li>Acceso a nuevos segmentos de clientes</li>
-                                    ${formData.goals.includes('expansion') ? '<li>Expansión a nuevos mercados</li>' : ''}
-                                    ${formData.goals.includes('premium') ? '<li>Justificación de precios premium</li>' : ''}
+                                    ${oportunidades.map(o => `<li>${o}</li>`).join('')}
                                 </ul>
+                                <p class="dafo-summary">El mercado actual presenta ventanas de oportunidad para marcas que deciden invertir en diferenciación mientras otros esperan.</p>
                             </div>
                             <div class="dafo-item amenazas">
-                                <h3>⚠️ Amenazas</h3>
+                                <h3>🔥 AMENAZAS</h3>
                                 <ul>
-                                    <li>Competidores con imagen actualizada</li>
-                                    <li>Pérdida progresiva de relevancia</li>
-                                    <li>Dificultad para atraer talento y clientes</li>
-                                    ${formData.timeline === 'urgente' ? '<li>Presión temporal puede afectar calidad</li>' : ''}
+                                    ${amenazas.map(a => `<li>${a}</li>`).join('')}
                                 </ul>
+                                <p class="dafo-summary">Estas amenazas son reales pero gestionables. La inacción es el mayor riesgo; actuar estratégicamente las convierte en ventajas.</p>
                             </div>
                         </div>
                     </div>
 
                     <div class="report-section">
-                        <h2>Puntos críticos</h2>
+                        <h2>Puntos críticos de intervención</h2>
+                        <p style="margin-bottom: 1rem; color: var(--gray);">Áreas que requieren atención prioritaria:</p>
                         <div class="critical-points">
                             <div class="critical-point">
                                 <h4>🔴 Percepción de marca</h4>
-                                <p>${formData.painPoint === 'premium' ? 'Tu marca no está comunicando el valor real de tus servicios, generando una barrera invisible para clientes de alto valor.' : formData.painPoint === 'outdated' ? 'Una imagen anticuada genera desconfianza inconsciente y te posiciona como una opción del pasado.' : formData.painPoint === 'inconsistent' ? 'La inconsistencia visual fragmenta tu mensaje y debilita el reconocimiento de marca.' : 'La invisibilidad en tu mercado significa que pierdes oportunidades incluso antes de competir.'}</p>
+                                <p>${formData.painPoint === 'premium' ? 'Tu marca no está comunicando el valor real de tus servicios. Esto crea una barrera invisible: clientes potenciales de alto valor te descartan antes de conocerte porque tu imagen no les habla. La inversión en marca no es un gasto, es la eliminación de un filtro que está expulsando a tus mejores prospectos.' : formData.painPoint === 'outdated' ? 'Una imagen anticuada genera desconfianza inconsciente. Los clientes, sin poder explicar por qué, sienten que algo no encaja. En un mundo donde las decisiones se toman en segundos, parecer del pasado te posiciona automáticamente como segunda opción.' : formData.painPoint === 'inconsistent' ? 'La inconsistencia visual fragmenta tu mensaje y confunde al mercado. Cuando tu logo dice una cosa, tu web otra y tus redes otra diferente, el cliente no puede formar una imagen clara de quién eres. La confusión nunca vende.' : 'La invisibilidad en tu mercado es el problema más costoso porque es silencioso. No sabes lo que pierdes porque ni siquiera llegas a competir. Cada día que pasas desapercibido es un día que tu competencia te roba oportunidades que ni conoces.'}</p>
                             </div>
                             <div class="critical-point">
                                 <h4>🔴 Coherencia visual</h4>
-                                <p>Los elementos identificados (${getElementsText()}) necesitan una intervención coordinada para construir una identidad sólida y memorable.</p>
+                                <p>Los elementos identificados (${getElementsText()}) funcionan como un sistema interconectado. Actualizar uno sin considerar los demás puede crear más incoherencia. La intervención debe ser coordinada y estratégica, siguiendo un hilo conductor que unifique todos los puntos de contacto con tu audiencia.</p>
                             </div>
                             <div class="critical-point">
                                 <h4>🔴 Posicionamiento competitivo</h4>
-                                <p>Sin una marca diferenciada, compites principalmente por precio, lo que erosiona márgenes y sostenibilidad del negocio.</p>
+                                <p>Sin una marca diferenciada, entras en la guerra del precio, una batalla que solo gana el más grande o el más desesperado. Tu única defensa sostenible es crear preferencia: que te elijan no porque seas más barato, sino porque eres tú. Eso solo se consigue con marca.</p>
                             </div>
+                            ${formData.lostOpportunities === 'si' ? `
+                            <div class="critical-point">
+                                <h4>🔴 Coste de oportunidad acumulado</h4>
+                                <p>Has confirmado pérdida de oportunidades por tu imagen. Este coste invisible es probablemente mayor de lo que imaginas. Cada propuesta rechazada, cada cliente que no volvió, cada referido que no llegó... la marca deficiente actúa como un impuesto oculto sobre toda tu actividad comercial.</p>
+                            </div>
+                            ` : ''}
                         </div>
                     </div>
 
                     <div class="report-section">
                         <h2>Roadmap recomendado</h2>
+                        <p style="margin-bottom: 1rem; color: var(--gray);">Plan de acción estructurado en fases:</p>
                         <div class="roadmap">
                             <div class="roadmap-phase">
-                                <div class="phase-time">Fase 1: Quick Wins (Días 1-30)</div>
-                                <h4>Fundamentos y estrategia</h4>
+                                <div class="phase-time">Fase 1: Estrategia y Fundamentos (Semanas 1-4)</div>
+                                <h4>Sentar las bases del proyecto</h4>
                                 <ul>
-                                    <li>Auditoría completa de marca actual</li>
-                                    <li>Definición de estrategia y posicionamiento</li>
-                                    <li>Benchmarking de competencia</li>
-                                    <li>Briefing creativo</li>
+                                    <li>Auditoría completa de marca actual y análisis de competencia</li>
+                                    <li>Entrevistas de inmersión para entender la esencia del negocio</li>
+                                    <li>Definición de posicionamiento estratégico y personalidad de marca</li>
+                                    <li>Identificación de audiencias clave y sus expectativas visuales</li>
+                                    <li>Briefing creativo detallado con dirección de diseño</li>
                                 </ul>
                             </div>
                             <div class="roadmap-phase">
-                                <div class="phase-time">Fase 2: Identidad Core (Meses 2-3)</div>
-                                <h4>Desarrollo de identidad</h4>
+                                <div class="phase-time">Fase 2: Desarrollo de Identidad (Semanas 5-10)</div>
+                                <h4>Creación del sistema visual</h4>
                                 <ul>
-                                    <li>Diseño de logo y sistema visual</li>
-                                    <li>Paleta cromática y tipografías</li>
-                                    <li>Elementos gráficos secundarios</li>
-                                    <li>Manual de identidad</li>
+                                    <li>Diseño de logo principal y versiones alternativas</li>
+                                    <li>Definición de paleta cromática primaria y secundaria</li>
+                                    <li>Selección y jerarquía tipográfica</li>
+                                    <li>Desarrollo de elementos gráficos complementarios</li>
+                                    <li>Creación de manual de identidad corporativa</li>
+                                    <li>Definición de tono de voz y estilo de comunicación</li>
                                 </ul>
                             </div>
                             <div class="roadmap-phase">
-                                <div class="phase-time">Fase 3: Implementación (Meses 3-4)</div>
-                                <h4>Despliegue y aplicaciones</h4>
+                                <div class="phase-time">Fase 3: Implementación (Semanas 11-16)</div>
+                                <h4>Despliegue en todos los puntos de contacto</h4>
                                 <ul>
-                                    <li>Papelería corporativa</li>
-                                    <li>Templates para redes sociales</li>
-                                    <li>Actualización de web (si aplica)</li>
-                                    <li>Formación al equipo</li>
+                                    ${formData.elements.includes('papeleria') || formData.elements.includes('todo') ? '<li>Diseño de papelería corporativa completa</li>' : ''}
+                                    ${formData.elements.includes('redes') || formData.elements.includes('todo') ? '<li>Templates para redes sociales y guidelines de contenido</li>' : ''}
+                                    ${formData.elements.includes('web') || formData.elements.includes('todo') ? '<li>Actualización o rediseño de presencia web</li>' : ''}
+                                    ${formData.elements.includes('rotulos') || formData.elements.includes('todo') ? '<li>Diseño de señalética y rótulos</li>' : ''}
+                                    <li>Formación al equipo sobre uso correcto de marca</li>
+                                    <li>Plan de lanzamiento y comunicación del rebranding</li>
                                 </ul>
                             </div>
                         </div>
                     </div>
 
                     <div class="report-section">
-                        <h2>Recomendación</h2>
+                        <h2>Recomendación personalizada</h2>
                         <div class="recommendation-box">
-                            <h3>Propuesta de valor</h3>
+                            <h3>Propuesta de valor para ${formData.company}</h3>
                             <p>${budgetRec.text}</p>
-                            ${formData.vision ? `<p style="margin-top: 1rem;"><strong>Tu visión:</strong> "${formData.vision}" es alcanzable con el enfoque correcto y una identidad que respalde tu posicionamiento.</p>` : ''}
-                            ${formData.inspiration ? `<p style="margin-top: 1rem;">Marcas como ${formData.inspiration} que te inspiran comparten algo en común: invierten en coherencia y consistencia de marca.</p>` : ''}
-                            <div class="roi-highlight">
+                            <p style="margin-top: 1rem;">${companyAnalysis.opportunity}</p>
+                            ${formData.vision ? `<p style="margin-top: 1rem;">Tu visión de "${formData.vision}" es completamente alcanzable. El rebranding no es solo estética: es la infraestructura que soportará esa transformación.</p>` : ''}
+                            ${formData.inspiration ? `<p style="margin-top: 1rem;">Marcas como <strong>${formData.inspiration}</strong> que te inspiran tienen algo en común: inversión consistente en coherencia de marca. No nacieron perfectas; decidieron construir esa percepción sistemáticamente.</p>` : ''}
+                            <div class="roi-highlight" style="margin-top: 1.5rem;">
                                 <span>ROI esperado de la inversión en marca</span>
                                 <strong>${budgetRec.roi}</strong>
+                                <p style="font-size: 0.8rem; margin-top: 0.5rem; opacity: 0.8;">Basado en estudios de impacto de rebranding en empresas similares del sector ${getBusinessTypeText()}</p>
                             </div>
                         </div>
                     </div>
@@ -1769,30 +2056,32 @@
                         <div class="next-steps">
                             <div class="next-step">
                                 <div class="next-step-number">1</div>
-                                <h4>Agendar llamada</h4>
-                                <p>Conversación de 30 min para profundizar en tu caso</p>
+                                <h4>Agendar llamada estratégica</h4>
+                                <p>30 minutos para profundizar en tu caso específico y resolver dudas</p>
                             </div>
                             <div class="next-step">
                                 <div class="next-step-number">2</div>
-                                <h4>Recibir propuesta</h4>
-                                <p>Plan detallado adaptado a tus necesidades</p>
+                                <h4>Recibir propuesta detallada</h4>
+                                <p>Plan personalizado con alcance, tiempos e inversión exacta</p>
                             </div>
                             <div class="next-step">
                                 <div class="next-step-number">3</div>
-                                <h4>Decidir</h4>
-                                <p>Sin compromiso, con toda la información</p>
+                                <h4>Decidir sin presión</h4>
+                                <p>Con toda la información para tomar la mejor decisión para tu empresa</p>
                             </div>
                         </div>
                     </div>
 
                     <div class="cta-section">
-                        <h3>¿Listo para transformar tu marca?</h3>
+                        <h3>¿Preparado para transformar ${formData.company}?</h3>
+                        <p style="margin-bottom: 1.5rem; color: var(--gray);">El primer paso es una conversación. Sin compromiso, sin presión.</p>
                         <div class="cta-buttons">
-                            <a href="mailto:info@angelsouto.es?subject=Consulta%20desde%20Diagnóstico%20de%20Marca%20-%20${encodeURIComponent(formData.company)}" class="btn btn-accent">Agendar llamada</a>
+                            <a href="mailto:info@angelsouto.es?subject=Consulta%20desde%20Diagnóstico%20de%20Marca%20-%20${encodeURIComponent(formData.company)}&body=Hola%20Ángel,%0A%0AAcabo%20de%20completar%20el%20diagnóstico%20de%20marca%20y%20me%20gustaría%20agendar%20una%20llamada%20para%20profundizar%20en%20mi%20caso.%0A%0AEmpresa:%20${encodeURIComponent(formData.company)}%0AContacto:%20${encodeURIComponent(formData.name)}%0ATeléfono:%20${encodeURIComponent(formData.phone)}%0A%0AGracias." class="btn btn-accent">Agendar llamada</a>
                             <button class="btn btn-primary" onclick="downloadPDF()">Descargar PDF</button>
                         </div>
                         <div class="cta-contact">
                             <p><a href="https://angelsouto.es" target="_blank">angelsouto.es</a> · <a href="mailto:info@angelsouto.es">info@angelsouto.es</a></p>
+                            <p style="margin-top: 0.5rem;">A Coruña · Estrategia de Marca</p>
                         </div>
                     </div>
                 </div>
