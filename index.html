@@ -859,6 +859,92 @@
         .hidden {
             display: none !important;
         }
+
+        /* PDF-specific styles */
+        .pdf-mode {
+            max-width: 100% !important;
+        }
+
+        .pdf-mode .report-section {
+            margin-bottom: 20px;
+        }
+
+        .pdf-mode .dafo-item {
+            page-break-inside: avoid;
+            break-inside: avoid;
+            margin-bottom: 15px;
+        }
+
+        .pdf-mode .critical-point {
+            page-break-inside: avoid;
+            break-inside: avoid;
+            margin-bottom: 10px;
+        }
+
+        .pdf-mode .roadmap-phase {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        .pdf-mode .next-step {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        .pdf-mode .urgency-box {
+            page-break-inside: avoid;
+            break-inside: avoid;
+            margin-bottom: 20px;
+        }
+
+        .pdf-mode .recommendation-box {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        .pdf-mode .cta-section {
+            page-break-inside: avoid;
+            break-inside: avoid;
+            margin-top: 20px;
+        }
+
+        .pdf-mode .report-header {
+            page-break-after: avoid;
+            break-after: avoid;
+            margin-bottom: 20px;
+        }
+
+        .pdf-mode h2 {
+            page-break-after: avoid;
+            break-after: avoid;
+            margin-top: 15px;
+        }
+
+        .pdf-mode .next-steps {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        /* Ensure proper spacing for PDF */
+        .pdf-mode .user-quote {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        .pdf-mode .roi-highlight {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        .pdf-mode ul {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        /* Force page breaks before major sections if needed */
+        .pdf-mode .report-section:nth-child(n+4) h2 {
+            page-break-before: auto;
+        }
     </style>
 </head>
 <body>
@@ -2096,21 +2182,48 @@
 
         function downloadPDF() {
             const element = document.getElementById('reportContent');
-            const opt = {
-                margin: [10, 10, 10, 10],
-                filename: `diagnostico-marca-${formData.company.toLowerCase().replace(/\s+/g, '-')}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
 
-            // Temporarily hide CTA buttons for PDF
+            // Add PDF mode class for page break handling
+            element.classList.add('pdf-mode');
+
+            // Hide CTA buttons for PDF
             const ctaButtons = document.querySelector('.cta-buttons');
             const originalDisplay = ctaButtons.style.display;
             ctaButtons.style.display = 'none';
 
+            const opt = {
+                margin: [15, 15, 15, 15],
+                filename: `diagnostico-marca-${formData.company.toLowerCase().replace(/\s+/g, '-')}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: {
+                    scale: 2,
+                    useCORS: true,
+                    logging: false,
+                    letterRendering: true,
+                    allowTaint: true
+                },
+                jsPDF: {
+                    unit: 'mm',
+                    format: 'a4',
+                    orientation: 'portrait',
+                    compress: true
+                },
+                pagebreak: {
+                    mode: ['avoid-all', 'css', 'legacy'],
+                    before: '.page-break-before',
+                    after: '.page-break-after',
+                    avoid: ['.report-section', '.dafo-item', '.critical-point', '.roadmap-phase', '.urgency-box', '.recommendation-box', '.next-steps', '.cta-section']
+                }
+            };
+
             html2pdf().set(opt).from(element).save().then(() => {
                 ctaButtons.style.display = originalDisplay;
+                element.classList.remove('pdf-mode');
+            }).catch(err => {
+                console.error('Error generating PDF:', err);
+                ctaButtons.style.display = originalDisplay;
+                element.classList.remove('pdf-mode');
+                alert('Error al generar el PDF. Por favor, intenta de nuevo.');
             });
         }
 
