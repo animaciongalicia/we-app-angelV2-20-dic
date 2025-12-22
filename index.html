@@ -1,0 +1,1832 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnóstico de Marca | Ángel Souto</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root {
+            --gold: #C9A227;
+            --black: #1A1A1A;
+            --bg: #F8F6F3;
+            --gray: #6B6B6B;
+            --border: #E0DDD8;
+            --green: #4CAF50;
+            --red: #EF5350;
+            --blue: #2196F3;
+            --orange: #FF9800;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background-color: var(--bg);
+            color: var(--black);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 600;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .logo span {
+            color: var(--gold);
+        }
+
+        .tagline {
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .progress-line {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--border);
+            transform: translateY(-50%);
+            z-index: 0;
+        }
+
+        .progress-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 1;
+            background: var(--bg);
+            padding: 0 0.5rem;
+        }
+
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .step-circle.active {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        .step-circle.completed {
+            background: var(--gold);
+            border-color: var(--gold);
+            color: white;
+        }
+
+        .step-label {
+            font-size: 0.75rem;
+            color: var(--gray);
+            margin-top: 0.5rem;
+            text-align: center;
+            max-width: 80px;
+        }
+
+        @media (max-width: 640px) {
+            .step-label {
+                display: none;
+            }
+            .step-circle {
+                width: 32px;
+                height: 32px;
+                font-size: 0.8rem;
+            }
+        }
+
+        /* Wizard Card */
+        .wizard-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+
+        .step-title {
+            font-size: 1.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .step-subtitle {
+            color: var(--gray);
+            margin-bottom: 2rem;
+        }
+
+        /* Question */
+        .question {
+            margin-bottom: 2rem;
+        }
+
+        .question-label {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        /* Radio Cards */
+        .radio-cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        @media (max-width: 640px) {
+            .radio-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .radio-card {
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .radio-card:hover {
+            border-color: var(--gold);
+        }
+
+        .radio-card.selected {
+            border-color: var(--gold);
+            background: rgba(201, 162, 39, 0.05);
+        }
+
+        .radio-card input {
+            display: none;
+        }
+
+        .radio-card .check-icon {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--border);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .radio-card.selected .check-icon {
+            background: var(--gold);
+            border-color: var(--gold);
+            color: white;
+        }
+
+        .radio-card .card-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            padding-right: 2rem;
+        }
+
+        .radio-card .card-desc {
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+
+        /* Checkbox Cards */
+        .checkbox-cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        @media (max-width: 640px) {
+            .checkbox-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .checkbox-card {
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .checkbox-card:hover {
+            border-color: var(--gold);
+        }
+
+        .checkbox-card.selected {
+            border-color: var(--gold);
+            background: rgba(201, 162, 39, 0.05);
+        }
+
+        .checkbox-card input {
+            display: none;
+        }
+
+        .checkbox-card .checkbox-icon {
+            width: 22px;
+            height: 22px;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+
+        .checkbox-card.selected .checkbox-icon {
+            background: var(--gold);
+            border-color: var(--gold);
+            color: white;
+        }
+
+        .checkbox-card .card-label {
+            font-weight: 500;
+        }
+
+        /* Form Inputs */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--gold);
+        }
+
+        textarea.form-input {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        @media (max-width: 640px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 640px) {
+            .btn-group {
+                flex-direction: column-reverse;
+            }
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+        }
+
+        .btn-primary {
+            background: var(--black);
+            color: white;
+            flex: 1;
+        }
+
+        .btn-primary:hover {
+            background: #333;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border-color: var(--border);
+            color: var(--gray);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--black);
+            color: var(--black);
+        }
+
+        .btn-accent {
+            background: var(--gold);
+            color: white;
+            flex: 1;
+        }
+
+        .btn-accent:hover {
+            background: #b8922a;
+        }
+
+        /* Loading Screen */
+        .loading-screen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(26, 26, 26, 0.95);
+            z-index: 1000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .loading-screen.active {
+            display: flex;
+        }
+
+        .loading-icon {
+            font-size: 4rem;
+            animation: pulse 1.5s ease-in-out infinite;
+            margin-bottom: 2rem;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.7; }
+        }
+
+        .loading-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .loading-steps {
+            width: 100%;
+            max-width: 400px;
+            padding: 0 2rem;
+        }
+
+        .loading-step {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 0;
+            opacity: 0.3;
+            transition: opacity 0.3s ease;
+        }
+
+        .loading-step.active {
+            opacity: 1;
+        }
+
+        .loading-step.completed {
+            opacity: 0.6;
+        }
+
+        .loading-step-icon {
+            width: 24px;
+            height: 24px;
+            border: 2px solid currentColor;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+        }
+
+        .loading-step.active .loading-step-icon {
+            border-color: var(--gold);
+            color: var(--gold);
+            animation: spin 1s linear infinite;
+        }
+
+        .loading-step.completed .loading-step-icon {
+            background: var(--gold);
+            border-color: var(--gold);
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Report Styles */
+        .report {
+            display: none;
+        }
+
+        .report.active {
+            display: block;
+        }
+
+        .report-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .report-header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .report-header p {
+            color: var(--gray);
+        }
+
+        .report-section {
+            margin-bottom: 2rem;
+        }
+
+        .report-section h2 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--gold);
+            display: inline-block;
+        }
+
+        /* Urgency Box */
+        .urgency-box {
+            background: linear-gradient(135deg, var(--red), #d32f2f);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+        }
+
+        .urgency-level {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .urgency-message {
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .urgency-quote {
+            font-style: italic;
+            opacity: 0.9;
+            font-size: 0.9rem;
+            border-left: 3px solid rgba(255,255,255,0.5);
+            padding-left: 1rem;
+        }
+
+        /* DAFO Grid */
+        .dafo-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        @media (max-width: 640px) {
+            .dafo-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .dafo-item {
+            padding: 1.25rem;
+            border-radius: 12px;
+            color: white;
+        }
+
+        .dafo-item.fortalezas { background: var(--green); }
+        .dafo-item.debilidades { background: var(--red); }
+        .dafo-item.oportunidades { background: var(--blue); }
+        .dafo-item.amenazas { background: var(--orange); }
+
+        .dafo-item h3 {
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 700;
+        }
+
+        .dafo-item ul {
+            list-style: none;
+            font-size: 0.9rem;
+        }
+
+        .dafo-item li {
+            padding: 0.25rem 0;
+            padding-left: 1.25rem;
+            position: relative;
+        }
+
+        .dafo-item li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+        }
+
+        /* Critical Points */
+        .critical-points {
+            display: grid;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .critical-point {
+            background: #FFF5F5;
+            border: 1px solid var(--red);
+            border-left: 4px solid var(--red);
+            padding: 1rem 1.25rem;
+            border-radius: 8px;
+        }
+
+        .critical-point h4 {
+            color: var(--red);
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .critical-point p {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        /* Roadmap */
+        .roadmap {
+            margin-top: 1rem;
+        }
+
+        .roadmap-phase {
+            position: relative;
+            padding-left: 2rem;
+            padding-bottom: 1.5rem;
+            border-left: 2px solid var(--border);
+        }
+
+        .roadmap-phase:last-child {
+            border-left: 2px solid transparent;
+            padding-bottom: 0;
+        }
+
+        .roadmap-phase::before {
+            content: "";
+            position: absolute;
+            left: -8px;
+            top: 0;
+            width: 14px;
+            height: 14px;
+            background: var(--gold);
+            border-radius: 50%;
+        }
+
+        .roadmap-phase h4 {
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .roadmap-phase .phase-time {
+            font-size: 0.85rem;
+            color: var(--gold);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .roadmap-phase ul {
+            font-size: 0.9rem;
+            color: var(--gray);
+            padding-left: 1.25rem;
+        }
+
+        .roadmap-phase li {
+            margin-bottom: 0.25rem;
+        }
+
+        /* Recommendation Box */
+        .recommendation-box {
+            background: linear-gradient(135deg, #1A1A1A, #333);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-top: 1rem;
+        }
+
+        .recommendation-box h3 {
+            color: var(--gold);
+            margin-bottom: 1rem;
+        }
+
+        .recommendation-box p {
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .roi-highlight {
+            background: rgba(201, 162, 39, 0.2);
+            border: 1px solid var(--gold);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .roi-highlight span {
+            display: block;
+            font-size: 0.85rem;
+            opacity: 0.8;
+            margin-bottom: 0.25rem;
+        }
+
+        .roi-highlight strong {
+            font-size: 1.5rem;
+            color: var(--gold);
+        }
+
+        /* Next Steps */
+        .next-steps {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        @media (max-width: 640px) {
+            .next-steps {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .next-step {
+            text-align: center;
+            padding: 1.5rem;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+
+        .next-step-number {
+            width: 40px;
+            height: 40px;
+            background: var(--gold);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin: 0 auto 1rem;
+        }
+
+        .next-step h4 {
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .next-step p {
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+
+        /* CTA Section */
+        .cta-section {
+            text-align: center;
+            padding: 2rem;
+            background: var(--bg);
+            border-radius: 12px;
+            margin-top: 2rem;
+        }
+
+        .cta-section h3 {
+            margin-bottom: 1rem;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        @media (max-width: 640px) {
+            .cta-buttons {
+                flex-direction: column;
+            }
+        }
+
+        .cta-contact {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .cta-contact a {
+            color: var(--gold);
+            text-decoration: none;
+        }
+
+        .cta-contact a:hover {
+            text-decoration: underline;
+        }
+
+        /* User Quote */
+        .user-quote {
+            background: var(--bg);
+            border-left: 4px solid var(--gold);
+            padding: 1rem 1.25rem;
+            margin: 1rem 0;
+            font-style: italic;
+            color: var(--gray);
+        }
+
+        /* Hide steps */
+        .wizard-step {
+            display: none;
+        }
+
+        .wizard-step.active {
+            display: block;
+        }
+
+        /* Print/PDF styles */
+        @media print {
+            .header, .progress-bar, .btn-group, .cta-buttons {
+                display: none !important;
+            }
+            .wizard-card {
+                box-shadow: none;
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div>
+            <div class="logo">Ángel <span>Souto</span></div>
+            <div class="tagline">A Coruña · Estrategia de Marca</div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="container">
+        <!-- Progress Bar -->
+        <div class="progress-bar" id="progressBar">
+            <div class="progress-line"></div>
+            <div class="progress-step">
+                <div class="step-circle active" data-step="1">1</div>
+                <div class="step-label">Dolor</div>
+            </div>
+            <div class="progress-step">
+                <div class="step-circle" data-step="2">2</div>
+                <div class="step-label">Estado</div>
+            </div>
+            <div class="progress-step">
+                <div class="step-circle" data-step="3">3</div>
+                <div class="step-label">Impacto</div>
+            </div>
+            <div class="progress-step">
+                <div class="step-circle" data-step="4">4</div>
+                <div class="step-label">Contexto</div>
+            </div>
+            <div class="progress-step">
+                <div class="step-circle" data-step="5">5</div>
+                <div class="step-label">Visión</div>
+            </div>
+            <div class="progress-step">
+                <div class="step-circle" data-step="6">6</div>
+                <div class="step-label">Recursos</div>
+            </div>
+            <div class="progress-step">
+                <div class="step-circle" data-step="7">7</div>
+                <div class="step-label">Contacto</div>
+            </div>
+            <div class="progress-step">
+                <div class="step-circle" data-step="8">8</div>
+                <div class="step-label">Informe</div>
+            </div>
+        </div>
+
+        <!-- Wizard Card -->
+        <div class="wizard-card" id="wizardCard">
+            <!-- Step 1: Punto de dolor -->
+            <div class="wizard-step active" data-step="1">
+                <h2 class="step-title">Punto de dolor</h2>
+                <p class="step-subtitle">Identifiquemos qué te preocupa de tu marca</p>
+
+                <div class="question">
+                    <label class="question-label">¿Qué te ha traído hasta aquí?</label>
+                    <div class="radio-cards">
+                        <label class="radio-card" data-value="outdated">
+                            <input type="radio" name="painPoint" value="outdated">
+                            <div class="check-icon">✓</div>
+                            <div class="card-title">Parece anticuada</div>
+                            <div class="card-desc">Mi marca ha quedado desfasada respecto al mercado</div>
+                        </label>
+                        <label class="radio-card" data-value="inconsistent">
+                            <input type="radio" name="painPoint" value="inconsistent">
+                            <div class="check-icon">✓</div>
+                            <div class="card-title">Falta coherencia</div>
+                            <div class="card-desc">No hay una línea visual consistente en mis materiales</div>
+                        </label>
+                        <label class="radio-card" data-value="invisible">
+                            <input type="radio" name="painPoint" value="invisible">
+                            <div class="check-icon">✓</div>
+                            <div class="card-title">Paso desapercibido</div>
+                            <div class="card-desc">Mi marca no destaca ni llama la atención</div>
+                        </label>
+                        <label class="radio-card" data-value="premium">
+                            <input type="radio" name="painPoint" value="premium">
+                            <div class="check-icon">✓</div>
+                            <div class="card-title">No transmito valor</div>
+                            <div class="card-desc">Mi imagen no refleja la calidad de lo que ofrezco</div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="nextStep()">Continuar</button>
+                </div>
+            </div>
+
+            <!-- Step 2: Estado de la marca -->
+            <div class="wizard-step" data-step="2">
+                <h2 class="step-title">Estado de la marca</h2>
+                <p class="step-subtitle">Evaluemos los elementos actuales de tu identidad</p>
+
+                <div class="question">
+                    <label class="question-label">¿Qué elementos necesitan atención?</label>
+                    <div class="checkbox-cards">
+                        <label class="checkbox-card">
+                            <input type="checkbox" name="elements" value="logo">
+                            <div class="checkbox-icon">✓</div>
+                            <span class="card-label">Logo</span>
+                        </label>
+                        <label class="checkbox-card">
+                            <input type="checkbox" name="elements" value="colores">
+                            <div class="checkbox-icon">✓</div>
+                            <span class="card-label">Colores</span>
+                        </label>
+                        <label class="checkbox-card">
+                            <input type="checkbox" name="elements" value="tipografias">
+                            <div class="checkbox-icon">✓</div>
+                            <span class="card-label">Tipografías</span>
+                        </label>
+                        <label class="checkbox-card">
+                            <input type="checkbox" name="elements" value="web">
+                            <div class="checkbox-icon">✓</div>
+                            <span class="card-label">Web</span>
+                        </label>
+                        <label class="checkbox-card">
+                            <input type="checkbox" name="elements" value="papeleria">
+                            <div class="checkbox-icon">✓</div>
+                            <span class="card-label">Papelería</span>
+                        </label>
+                        <label class="checkbox-card">
+                            <input type="checkbox" name="elements" value="redes">
+                            <div class="checkbox-icon">✓</div>
+                            <span class="card-label">Redes sociales</span>
+                        </label>
+                        <label class="checkbox-card">
+                            <input type="checkbox" name="elements" value="rotulos">
+                            <div class="checkbox-icon">✓</div>
+                            <span class="card-label">Rótulos</span>
+                        </label>
+                        <label class="checkbox-card">
+                            <input type="checkbox" name="elements" value="todo">
+                            <div class="checkbox-icon">✓</div>
+                            <span class="card-label">Todo</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <label class="question-label">Antigüedad de tu identidad visual</label>
+                    <div class="radio-cards">
+                        <label class="radio-card" data-value="0-3">
+                            <input type="radio" name="brandAge" value="0-3">
+                            <div class="check-icon">✓</div>
+                            <div class="card-title">0-3 años</div>
+                            <div class="card-desc">Relativamente reciente</div>
+                        </label>
+                        <label class="radio-card" data-value="4-10">
+                            <input type="radio" name="brandAge" value="4-10">
+                            <div class="check-icon">✓</div>
+                            <div class="card-title">4-10 años</div>
+                            <div class="card-desc">Necesita revisión</div>
+                        </label>
+                        <label class="radio-card" data-value="10+">
+                            <input type="radio" name="brandAge" value="10+">
+                            <div class="check-icon">✓</div>
+                            <div class="card-title">+10 años</div>
+                            <div class="card-desc">Requiere actualización</div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="prevStep()">Atrás</button>
+                    <button class="btn btn-primary" onclick="nextStep()">Continuar</button>
+                </div>
+            </div>
+
+            <!-- Step 3: Impacto en negocio -->
+            <div class="wizard-step" data-step="3">
+                <h2 class="step-title">Impacto en el negocio</h2>
+                <p class="step-subtitle">Entendamos cómo afecta tu marca a tus resultados</p>
+
+                <div class="question">
+                    <label class="question-label">¿Has perdido oportunidades por tu imagen?</label>
+                    <div class="radio-cards">
+                        <label class="radio-card" data-value="si">
+                            <input type="radio" name="lostOpportunities" value="si">
+                            <div class="check-icon">✓</div>
+                            <div class="card-title">Sí, claramente</div>
+                            <div class="card-desc">He perdido clientes o proyectos por mi imagen</div>
+                        </label>
+                        <label class="radio-card" data-value="probablemente">
+                            <input type="radio" name="lostOpportunities" value="probablemente">
+                            <div class="check-icon">✓</div>
+                            <div class="card-title">Probablemente</div>
+                            <div class="card-desc">Sospecho que mi imagen no me ayuda</div>
+                        </label>
+                        <label class="radio-card" data-value="no-seguro">
+                            <input type="radio" name="lostOpportunities" value="no-seguro">
+                            <div class="check-icon">✓</div>
+                            <div class="card-title">No estoy seguro</div>
+                            <div class="card-desc">No tengo claro el impacto real</div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">¿Qué te duele más de tu marca?</label>
+                    <textarea class="form-input" name="brandPain" placeholder="Cuéntanos qué es lo que más te frustra de tu imagen actual..."></textarea>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="prevStep()">Atrás</button>
+                    <button class="btn btn-primary" onclick="nextStep()">Continuar</button>
+                </div>
+            </div>
+
+            <!-- Step 4: Contexto del negocio -->
+            <div class="wizard-step" data-step="4">
+                <h2 class="step-title">Contexto del negocio</h2>
+                <p class="step-subtitle">Conocemos mejor tu empresa</p>
+
+                <div class="question">
+                    <label class="question-label">¿A qué se dedica tu empresa?</label>
+                    <div class="radio-cards">
+                        <label class="radio-card" data-value="servicios">
+                            <input type="radio" name="businessType" value="servicios">
+                            <div class="check-icon">✓</div>
+                            <div class="card-title">Servicios</div>
+                            <div class="card-desc">Consultoría, asesoría, formación...</div>
+                        </label>
+                        <label class="radio-card" data-value="comercio">
+                            <input type="radio" name="businessType" value="comercio">
+                            <div class="check-icon">✓</div>
+                            <div class="card-title">Comercio</div>
+                            <div class="card-desc">Tienda física u online</div>
+                        </label>
+                        <label class="radio-card" data-value="hosteleria">
+                            <input type="radio" name="businessType" value="hosteleria">
+                            <div class="check-icon">✓</div>
+                            <div class="card-title">Hostelería</div>
+                            <div class="card-desc">Restaurante, hotel, bar...</div>
+                        </label>
+                        <label class="radio-card" data-value="industrial">
+                            <input type="radio" name="businessType" value="industrial">
+                            <div class="check-icon">✓</div>
+                            <div class="card-title">Industrial</div>
+                            <div class="card-desc">Fabricación, producción...</div>
+                        </label>
+                        <label class="radio-card" data-value="salud">
+                            <input type="radio" name="businessType" value="salud">
+                            <div class="check-icon">✓</div>
+                            <div class="card-title">Salud</div>
+                            <div class="card-desc">Clínica, consulta, bienestar...</div>
+                        </label>
+                        <label class="radio-card" data-value="otro">
+                            <input type="radio" name="businessType" value="otro">
+                            <div class="check-icon">✓</div>
+                            <div class="card-title">Otro</div>
+                            <div class="card-desc">Otra actividad</div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <label class="question-label">Años de tu empresa</label>
+                    <div class="radio-cards">
+                        <label class="radio-card" data-value="<3">
+                            <input type="radio" name="companyAge" value="<3">
+                            <div class="check-icon">✓</div>
+                            <div class="card-title">Menos de 3 años</div>
+                            <div class="card-desc">Empresa joven</div>
+                        </label>
+                        <label class="radio-card" data-value="3-10">
+                            <input type="radio" name="companyAge" value="3-10">
+                            <div class="check-icon">✓</div>
+                            <div class="card-title">3-10 años</div>
+                            <div class="card-desc">En crecimiento</div>
+                        </label>
+                        <label class="radio-card" data-value="10-25">
+                            <input type="radio" name="companyAge" value="10-25">
+                            <div class="check-icon">✓</div>
+                            <div class="card-title">10-25 años</div>
+                            <div class="card-desc">Consolidada</div>
+                        </label>
+                        <label class="radio-card" data-value="25+">
+                            <input type="radio" name="companyAge" value="25+">
+                            <div class="check-icon">✓</div>
+                            <div class="card-title">+25 años</div>
+                            <div class="card-desc">Empresa veterana</div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="prevStep()">Atrás</button>
+                    <button class="btn btn-primary" onclick="nextStep()">Continuar</button>
+                </div>
+            </div>
+
+            <!-- Step 5: Visión y objetivos -->
+            <div class="wizard-step" data-step="5">
+                <h2 class="step-title">Visión y objetivos</h2>
+                <p class="step-subtitle">Definamos hacia dónde quieres llevar tu marca</p>
+
+                <div class="question">
+                    <label class="question-label">¿Qué quieres conseguir?</label>
+                    <div class="checkbox-cards">
+                        <label class="checkbox-card">
+                            <input type="checkbox" name="goals" value="premium">
+                            <div class="checkbox-icon">✓</div>
+                            <span class="card-label">Posicionamiento premium</span>
+                        </label>
+                        <label class="checkbox-card">
+                            <input type="checkbox" name="goals" value="diferenciacion">
+                            <div class="checkbox-icon">✓</div>
+                            <span class="card-label">Diferenciación</span>
+                        </label>
+                        <label class="checkbox-card">
+                            <input type="checkbox" name="goals" value="modernizar">
+                            <div class="checkbox-icon">✓</div>
+                            <span class="card-label">Modernizar</span>
+                        </label>
+                        <label class="checkbox-card">
+                            <input type="checkbox" name="goals" value="confianza">
+                            <div class="checkbox-icon">✓</div>
+                            <span class="card-label">Generar confianza</span>
+                        </label>
+                        <label class="checkbox-card">
+                            <input type="checkbox" name="goals" value="clientes">
+                            <div class="checkbox-icon">✓</div>
+                            <span class="card-label">Atraer clientes</span>
+                        </label>
+                        <label class="checkbox-card">
+                            <input type="checkbox" name="goals" value="expansion">
+                            <div class="checkbox-icon">✓</div>
+                            <span class="card-label">Expansión</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">¿Cómo te gustaría que te vieran en 2 años?</label>
+                    <textarea class="form-input" name="vision" placeholder="Describe cómo te gustaría que percibieran tu marca..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Marca que admiras e inspira</label>
+                    <input type="text" class="form-input" name="inspiration" placeholder="Ej: Apple, Zara, una empresa local...">
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="prevStep()">Atrás</button>
+                    <button class="btn btn-primary" onclick="nextStep()">Continuar</button>
+                </div>
+            </div>
+
+            <!-- Step 6: Recursos -->
+            <div class="wizard-step" data-step="6">
+                <h2 class="step-title">Recursos</h2>
+                <p class="step-subtitle">Planifiquemos de forma realista</p>
+
+                <div class="question">
+                    <label class="question-label">Presupuesto aproximado</label>
+                    <div class="radio-cards">
+                        <label class="radio-card" data-value="3-5k">
+                            <input type="radio" name="budget" value="3-5k">
+                            <div class="check-icon">✓</div>
+                            <div class="card-title">3.000€ - 5.000€</div>
+                            <div class="card-desc">Proyecto básico</div>
+                        </label>
+                        <label class="radio-card" data-value="5-10k">
+                            <input type="radio" name="budget" value="5-10k">
+                            <div class="check-icon">✓</div>
+                            <div class="card-title">5.000€ - 10.000€</div>
+                            <div class="card-desc">Proyecto completo</div>
+                        </label>
+                        <label class="radio-card" data-value="10-20k">
+                            <input type="radio" name="budget" value="10-20k">
+                            <div class="check-icon">✓</div>
+                            <div class="card-title">10.000€ - 20.000€</div>
+                            <div class="card-desc">Rebranding integral</div>
+                        </label>
+                        <label class="radio-card" data-value="20k+">
+                            <input type="radio" name="budget" value="20k+">
+                            <div class="check-icon">✓</div>
+                            <div class="card-title">+20.000€</div>
+                            <div class="card-desc">Transformación completa</div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <label class="question-label">¿Cuándo lo necesitas?</label>
+                    <div class="radio-cards">
+                        <label class="radio-card" data-value="urgente">
+                            <input type="radio" name="timeline" value="urgente">
+                            <div class="check-icon">✓</div>
+                            <div class="card-title">Urgente</div>
+                            <div class="card-desc">1-2 meses</div>
+                        </label>
+                        <label class="radio-card" data-value="normal">
+                            <input type="radio" name="timeline" value="normal">
+                            <div class="check-icon">✓</div>
+                            <div class="card-title">Normal</div>
+                            <div class="card-desc">3-4 meses</div>
+                        </label>
+                        <label class="radio-card" data-value="sin-prisa">
+                            <input type="radio" name="timeline" value="sin-prisa">
+                            <div class="check-icon">✓</div>
+                            <div class="card-title">Sin prisa</div>
+                            <div class="card-desc">5-6 meses</div>
+                        </label>
+                        <label class="radio-card" data-value="planificando">
+                            <input type="radio" name="timeline" value="planificando">
+                            <div class="check-icon">✓</div>
+                            <div class="card-title">Planificando</div>
+                            <div class="card-desc">Para más adelante</div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="prevStep()">Atrás</button>
+                    <button class="btn btn-primary" onclick="nextStep()">Continuar</button>
+                </div>
+            </div>
+
+            <!-- Step 7: Datos de contacto -->
+            <div class="wizard-step" data-step="7">
+                <h2 class="step-title">Datos de contacto</h2>
+                <p class="step-subtitle">Para enviarte el informe completo</p>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Nombre *</label>
+                        <input type="text" class="form-input" name="name" placeholder="Tu nombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Empresa *</label>
+                        <input type="text" class="form-input" name="company" placeholder="Nombre de tu empresa" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Email *</label>
+                        <input type="email" class="form-input" name="email" placeholder="tu@email.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Teléfono *</label>
+                        <input type="tel" class="form-input" name="phone" placeholder="+34 600 000 000" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Web actual (opcional)</label>
+                    <input type="url" class="form-input" name="website" placeholder="https://tuempresa.com">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Comentarios adicionales (opcional)</label>
+                    <textarea class="form-input" name="comments" placeholder="¿Hay algo más que debamos saber?"></textarea>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="prevStep()">Atrás</button>
+                    <button class="btn btn-accent" onclick="generateReport()">Generar diagnóstico</button>
+                </div>
+            </div>
+
+            <!-- Step 8: Report -->
+            <div class="wizard-step" data-step="8">
+                <div class="report" id="report">
+                    <!-- Report content will be generated here -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-icon">🧠</div>
+        <h2 class="loading-title">Generando tu diagnóstico...</h2>
+        <div class="loading-steps">
+            <div class="loading-step" data-loading-step="1">
+                <div class="loading-step-icon">◐</div>
+                <span>Evaluando puntos de dolor</span>
+            </div>
+            <div class="loading-step" data-loading-step="2">
+                <div class="loading-step-icon">◐</div>
+                <span>Mapeando elementos de marca</span>
+            </div>
+            <div class="loading-step" data-loading-step="3">
+                <div class="loading-step-icon">◐</div>
+                <span>Construyendo análisis DAFO</span>
+            </div>
+            <div class="loading-step" data-loading-step="4">
+                <div class="loading-step-icon">◐</div>
+                <span>Generando recomendaciones</span>
+            </div>
+            <div class="loading-step" data-loading-step="5">
+                <div class="loading-step-icon">◐</div>
+                <span>Redactando informe</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State management
+        let currentStep = 1;
+        const totalSteps = 8;
+        const formData = {};
+
+        // Initialize radio and checkbox cards
+        document.querySelectorAll('.radio-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const input = this.querySelector('input[type="radio"]');
+                const name = input.name;
+
+                // Remove selected from siblings
+                document.querySelectorAll(`input[name="${name}"]`).forEach(radio => {
+                    radio.closest('.radio-card').classList.remove('selected');
+                });
+
+                // Add selected to this card
+                this.classList.add('selected');
+                input.checked = true;
+            });
+        });
+
+        document.querySelectorAll('.checkbox-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const input = this.querySelector('input[type="checkbox"]');
+                input.checked = !input.checked;
+                this.classList.toggle('selected', input.checked);
+            });
+        });
+
+        // Navigation
+        function updateProgress() {
+            document.querySelectorAll('.step-circle').forEach((circle, index) => {
+                const step = index + 1;
+                circle.classList.remove('active', 'completed');
+
+                if (step < currentStep) {
+                    circle.classList.add('completed');
+                } else if (step === currentStep) {
+                    circle.classList.add('active');
+                }
+            });
+        }
+
+        function showStep(step) {
+            document.querySelectorAll('.wizard-step').forEach(s => s.classList.remove('active'));
+            document.querySelector(`.wizard-step[data-step="${step}"]`).classList.add('active');
+            updateProgress();
+            window.scrollTo(0, 0);
+        }
+
+        function collectFormData() {
+            // Radio buttons
+            document.querySelectorAll('input[type="radio"]:checked').forEach(input => {
+                formData[input.name] = input.value;
+            });
+
+            // Checkboxes
+            ['elements', 'goals'].forEach(name => {
+                const checked = document.querySelectorAll(`input[name="${name}"]:checked`);
+                formData[name] = Array.from(checked).map(c => c.value);
+            });
+
+            // Text inputs
+            document.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], input[type="url"], textarea').forEach(input => {
+                if (input.name && input.value) {
+                    formData[input.name] = input.value;
+                }
+            });
+        }
+
+        function validateStep(step) {
+            collectFormData();
+
+            switch(step) {
+                case 1:
+                    if (!formData.painPoint) {
+                        alert('Por favor, selecciona qué te ha traído hasta aquí');
+                        return false;
+                    }
+                    break;
+                case 2:
+                    if (!formData.elements || formData.elements.length === 0) {
+                        alert('Por favor, selecciona al menos un elemento que necesite atención');
+                        return false;
+                    }
+                    if (!formData.brandAge) {
+                        alert('Por favor, indica la antigüedad de tu identidad visual');
+                        return false;
+                    }
+                    break;
+                case 3:
+                    if (!formData.lostOpportunities) {
+                        alert('Por favor, indica si has perdido oportunidades');
+                        return false;
+                    }
+                    break;
+                case 4:
+                    if (!formData.businessType) {
+                        alert('Por favor, selecciona el tipo de negocio');
+                        return false;
+                    }
+                    if (!formData.companyAge) {
+                        alert('Por favor, indica los años de tu empresa');
+                        return false;
+                    }
+                    break;
+                case 5:
+                    if (!formData.goals || formData.goals.length === 0) {
+                        alert('Por favor, selecciona al menos un objetivo');
+                        return false;
+                    }
+                    break;
+                case 6:
+                    if (!formData.budget) {
+                        alert('Por favor, selecciona un presupuesto aproximado');
+                        return false;
+                    }
+                    if (!formData.timeline) {
+                        alert('Por favor, indica cuándo lo necesitas');
+                        return false;
+                    }
+                    break;
+                case 7:
+                    const name = document.querySelector('input[name="name"]').value;
+                    const company = document.querySelector('input[name="company"]').value;
+                    const email = document.querySelector('input[name="email"]').value;
+                    const phone = document.querySelector('input[name="phone"]').value;
+
+                    if (!name || !company || !email || !phone) {
+                        alert('Por favor, completa todos los campos obligatorios');
+                        return false;
+                    }
+
+                    if (!email.includes('@')) {
+                        alert('Por favor, introduce un email válido');
+                        return false;
+                    }
+                    break;
+            }
+            return true;
+        }
+
+        function nextStep() {
+            if (!validateStep(currentStep)) return;
+
+            if (currentStep < totalSteps) {
+                currentStep++;
+                showStep(currentStep);
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 1) {
+                currentStep--;
+                showStep(currentStep);
+            }
+        }
+
+        // Report Generation
+        function generateReport() {
+            if (!validateStep(7)) return;
+            collectFormData();
+
+            // Show loading screen
+            const loadingScreen = document.getElementById('loadingScreen');
+            loadingScreen.classList.add('active');
+
+            // Animate loading steps
+            let loadingStep = 1;
+            const loadingInterval = setInterval(() => {
+                document.querySelectorAll('.loading-step').forEach((step, index) => {
+                    step.classList.remove('active', 'completed');
+                    if (index + 1 < loadingStep) {
+                        step.classList.add('completed');
+                    } else if (index + 1 === loadingStep) {
+                        step.classList.add('active');
+                    }
+                });
+
+                loadingStep++;
+
+                if (loadingStep > 6) {
+                    clearInterval(loadingInterval);
+                    setTimeout(() => {
+                        loadingScreen.classList.remove('active');
+                        currentStep = 8;
+                        showStep(8);
+                        renderReport();
+                    }, 500);
+                }
+            }, 2500);
+        }
+
+        function getPainPointMessage() {
+            const messages = {
+                'outdated': 'Tu marca ha quedado desfasada. En un mercado donde la imagen es fundamental, cada día que pasa con una identidad anticuada es una oportunidad perdida de conectar con tu audiencia ideal.',
+                'inconsistent': 'La falta de coherencia visual está diluyendo el poder de tu marca. Cuando cada material comunica algo diferente, los clientes no pueden construir una imagen clara de quién eres.',
+                'invisible': 'Pasar desapercibido en tu mercado significa que todo tu esfuerzo comercial no está siendo respaldado por tu imagen. Tu competencia está captando la atención que podrías tener.',
+                'premium': 'Existe una brecha entre el valor real que ofreces y lo que tu marca comunica. Esta desconexión te está costando clientes que buscan calidad pero no la perciben en ti.'
+            };
+            return messages[formData.painPoint] || messages['outdated'];
+        }
+
+        function getUrgencyLevel() {
+            let score = 0;
+
+            if (formData.brandAge === '10+') score += 3;
+            else if (formData.brandAge === '4-10') score += 2;
+
+            if (formData.lostOpportunities === 'si') score += 3;
+            else if (formData.lostOpportunities === 'probablemente') score += 2;
+
+            if (formData.elements && formData.elements.includes('todo')) score += 2;
+            else if (formData.elements && formData.elements.length >= 4) score += 1;
+
+            if (formData.timeline === 'urgente') score += 2;
+
+            if (score >= 7) return { level: 'CRÍTICO', color: '#c62828' };
+            if (score >= 5) return { level: 'ALTO', color: '#ef5350' };
+            if (score >= 3) return { level: 'MEDIO-ALTO', color: '#ff9800' };
+            return { level: 'MODERADO', color: '#ffc107' };
+        }
+
+        function getElementsText() {
+            const elementLabels = {
+                'logo': 'Logo',
+                'colores': 'Colores corporativos',
+                'tipografias': 'Tipografías',
+                'web': 'Sitio web',
+                'papeleria': 'Papelería corporativa',
+                'redes': 'Redes sociales',
+                'rotulos': 'Rótulos y señalética',
+                'todo': 'Identidad completa'
+            };
+
+            if (formData.elements.includes('todo')) {
+                return 'todos los elementos de tu identidad visual';
+            }
+
+            return formData.elements.map(e => elementLabels[e]).join(', ');
+        }
+
+        function getBusinessTypeText() {
+            const types = {
+                'servicios': 'servicios profesionales',
+                'comercio': 'comercio',
+                'hosteleria': 'hostelería',
+                'industrial': 'sector industrial',
+                'salud': 'sector salud',
+                'otro': 'tu sector'
+            };
+            return types[formData.businessType] || 'tu sector';
+        }
+
+        function getGoalsText() {
+            const goalLabels = {
+                'premium': 'posicionamiento premium',
+                'diferenciacion': 'diferenciación competitiva',
+                'modernizar': 'modernización de imagen',
+                'confianza': 'generación de confianza',
+                'clientes': 'atracción de nuevos clientes',
+                'expansion': 'expansión de mercado'
+            };
+            return formData.goals.map(g => goalLabels[g]).join(', ');
+        }
+
+        function getBudgetRecommendation() {
+            const recommendations = {
+                '3-5k': {
+                    text: 'Con tu presupuesto de 3.000€-5.000€ podemos abordar los elementos más críticos de tu identidad. Recomendamos priorizar el logo y la definición de la paleta cromática y tipográfica base.',
+                    roi: '150-200%'
+                },
+                '5-10k': {
+                    text: 'Tu presupuesto de 5.000€-10.000€ permite un proyecto de rebranding completo con identidad visual, aplicaciones principales y guía de estilo.',
+                    roi: '200-300%'
+                },
+                '10-20k': {
+                    text: 'Con 10.000€-20.000€ podemos ejecutar una transformación integral que incluye estrategia de marca, identidad visual completa, web y todas las aplicaciones necesarias.',
+                    roi: '300-400%'
+                },
+                '20k+': {
+                    text: 'Tu inversión de más de 20.000€ permite una transformación de marca completa con estrategia, identidad, implementación en todos los puntos de contacto y acompañamiento continuo.',
+                    roi: '400-500%'
+                }
+            };
+            return recommendations[formData.budget] || recommendations['5-10k'];
+        }
+
+        function renderReport() {
+            const urgency = getUrgencyLevel();
+            const budgetRec = getBudgetRecommendation();
+
+            const reportHTML = `
+                <div class="report active" id="reportContent">
+                    <div class="report-header">
+                        <h1>Diagnóstico de Marca</h1>
+                        <p>Preparado para ${formData.name} · ${formData.company}</p>
+                        <p style="font-size: 0.85rem; margin-top: 0.5rem;">Fecha: ${new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                    </div>
+
+                    <div class="urgency-box" style="background: linear-gradient(135deg, ${urgency.color}, ${urgency.color}dd);">
+                        <div class="urgency-level">⚠️ URGENCIA: ${urgency.level}</div>
+                        <div class="urgency-message">${getPainPointMessage()}</div>
+                        <div class="urgency-quote">"Mañana es tarde. Tu competencia no está esperando."</div>
+                    </div>
+
+                    <div class="report-section">
+                        <h2>Diagnóstico inicial</h2>
+                        <p><strong>${formData.company}</strong> es una empresa de ${getBusinessTypeText()} con ${formData.companyAge === '<3' ? 'menos de 3' : formData.companyAge === '3-10' ? '3 a 10' : formData.companyAge === '10-25' ? '10 a 25' : 'más de 25'} años de trayectoria que necesita intervención en ${getElementsText()}.</p>
+                        <p style="margin-top: 1rem;">La identidad visual actual tiene ${formData.brandAge === '0-3' ? 'entre 0 y 3 años' : formData.brandAge === '4-10' ? 'entre 4 y 10 años' : 'más de 10 años'}, lo que ${formData.brandAge === '10+' ? 'indica una clara necesidad de actualización' : formData.brandAge === '4-10' ? 'sugiere que es momento de revisar su vigencia' : 'puede requerir ajustes puntuales'}.</p>
+                        ${formData.brandPain ? `<div class="user-quote">"${formData.brandPain}"</div>` : ''}
+                        <p style="margin-top: 1rem;">Tus objetivos principales son: ${getGoalsText()}.</p>
+                    </div>
+
+                    <div class="report-section">
+                        <h2>Análisis DAFO</h2>
+                        <div class="dafo-grid">
+                            <div class="dafo-item fortalezas">
+                                <h3>💪 Fortalezas</h3>
+                                <ul>
+                                    <li>Trayectoria y experiencia en el sector</li>
+                                    <li>Consciencia de la necesidad de cambio</li>
+                                    <li>Disposición para invertir en la marca</li>
+                                    ${formData.companyAge === '10-25' || formData.companyAge === '25+' ? '<li>Reputación construida con el tiempo</li>' : ''}
+                                </ul>
+                            </div>
+                            <div class="dafo-item debilidades">
+                                <h3>⚡ Debilidades</h3>
+                                <ul>
+                                    <li>${formData.painPoint === 'outdated' ? 'Imagen visual desfasada' : formData.painPoint === 'inconsistent' ? 'Falta de coherencia visual' : formData.painPoint === 'invisible' ? 'Baja visibilidad en el mercado' : 'Desconexión entre valor y percepción'}</li>
+                                    <li>Elementos de marca que necesitan actualización</li>
+                                    ${formData.lostOpportunities === 'si' ? '<li>Pérdida de oportunidades comerciales</li>' : ''}
+                                    ${formData.brandAge === '10+' ? '<li>Identidad con más de 10 años sin renovar</li>' : ''}
+                                </ul>
+                            </div>
+                            <div class="dafo-item oportunidades">
+                                <h3>🚀 Oportunidades</h3>
+                                <ul>
+                                    <li>Reposicionamiento estratégico en el mercado</li>
+                                    <li>Diferenciación frente a competidores</li>
+                                    <li>Acceso a nuevos segmentos de clientes</li>
+                                    ${formData.goals.includes('expansion') ? '<li>Expansión a nuevos mercados</li>' : ''}
+                                    ${formData.goals.includes('premium') ? '<li>Justificación de precios premium</li>' : ''}
+                                </ul>
+                            </div>
+                            <div class="dafo-item amenazas">
+                                <h3>⚠️ Amenazas</h3>
+                                <ul>
+                                    <li>Competidores con imagen actualizada</li>
+                                    <li>Pérdida progresiva de relevancia</li>
+                                    <li>Dificultad para atraer talento y clientes</li>
+                                    ${formData.timeline === 'urgente' ? '<li>Presión temporal puede afectar calidad</li>' : ''}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="report-section">
+                        <h2>Puntos críticos</h2>
+                        <div class="critical-points">
+                            <div class="critical-point">
+                                <h4>🔴 Percepción de marca</h4>
+                                <p>${formData.painPoint === 'premium' ? 'Tu marca no está comunicando el valor real de tus servicios, generando una barrera invisible para clientes de alto valor.' : formData.painPoint === 'outdated' ? 'Una imagen anticuada genera desconfianza inconsciente y te posiciona como una opción del pasado.' : formData.painPoint === 'inconsistent' ? 'La inconsistencia visual fragmenta tu mensaje y debilita el reconocimiento de marca.' : 'La invisibilidad en tu mercado significa que pierdes oportunidades incluso antes de competir.'}</p>
+                            </div>
+                            <div class="critical-point">
+                                <h4>🔴 Coherencia visual</h4>
+                                <p>Los elementos identificados (${getElementsText()}) necesitan una intervención coordinada para construir una identidad sólida y memorable.</p>
+                            </div>
+                            <div class="critical-point">
+                                <h4>🔴 Posicionamiento competitivo</h4>
+                                <p>Sin una marca diferenciada, compites principalmente por precio, lo que erosiona márgenes y sostenibilidad del negocio.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="report-section">
+                        <h2>Roadmap recomendado</h2>
+                        <div class="roadmap">
+                            <div class="roadmap-phase">
+                                <div class="phase-time">Fase 1: Quick Wins (Días 1-30)</div>
+                                <h4>Fundamentos y estrategia</h4>
+                                <ul>
+                                    <li>Auditoría completa de marca actual</li>
+                                    <li>Definición de estrategia y posicionamiento</li>
+                                    <li>Benchmarking de competencia</li>
+                                    <li>Briefing creativo</li>
+                                </ul>
+                            </div>
+                            <div class="roadmap-phase">
+                                <div class="phase-time">Fase 2: Identidad Core (Meses 2-3)</div>
+                                <h4>Desarrollo de identidad</h4>
+                                <ul>
+                                    <li>Diseño de logo y sistema visual</li>
+                                    <li>Paleta cromática y tipografías</li>
+                                    <li>Elementos gráficos secundarios</li>
+                                    <li>Manual de identidad</li>
+                                </ul>
+                            </div>
+                            <div class="roadmap-phase">
+                                <div class="phase-time">Fase 3: Implementación (Meses 3-4)</div>
+                                <h4>Despliegue y aplicaciones</h4>
+                                <ul>
+                                    <li>Papelería corporativa</li>
+                                    <li>Templates para redes sociales</li>
+                                    <li>Actualización de web (si aplica)</li>
+                                    <li>Formación al equipo</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="report-section">
+                        <h2>Recomendación</h2>
+                        <div class="recommendation-box">
+                            <h3>Propuesta de valor</h3>
+                            <p>${budgetRec.text}</p>
+                            ${formData.vision ? `<p style="margin-top: 1rem;"><strong>Tu visión:</strong> "${formData.vision}" es alcanzable con el enfoque correcto y una identidad que respalde tu posicionamiento.</p>` : ''}
+                            ${formData.inspiration ? `<p style="margin-top: 1rem;">Marcas como ${formData.inspiration} que te inspiran comparten algo en común: invierten en coherencia y consistencia de marca.</p>` : ''}
+                            <div class="roi-highlight">
+                                <span>ROI esperado de la inversión en marca</span>
+                                <strong>${budgetRec.roi}</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="report-section">
+                        <h2>Próximos pasos</h2>
+                        <div class="next-steps">
+                            <div class="next-step">
+                                <div class="next-step-number">1</div>
+                                <h4>Agendar llamada</h4>
+                                <p>Conversación de 30 min para profundizar en tu caso</p>
+                            </div>
+                            <div class="next-step">
+                                <div class="next-step-number">2</div>
+                                <h4>Recibir propuesta</h4>
+                                <p>Plan detallado adaptado a tus necesidades</p>
+                            </div>
+                            <div class="next-step">
+                                <div class="next-step-number">3</div>
+                                <h4>Decidir</h4>
+                                <p>Sin compromiso, con toda la información</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="cta-section">
+                        <h3>¿Listo para transformar tu marca?</h3>
+                        <div class="cta-buttons">
+                            <a href="mailto:info@angelsouto.es?subject=Consulta%20desde%20Diagnóstico%20de%20Marca%20-%20${encodeURIComponent(formData.company)}" class="btn btn-accent">Agendar llamada</a>
+                            <button class="btn btn-primary" onclick="downloadPDF()">Descargar PDF</button>
+                        </div>
+                        <div class="cta-contact">
+                            <p><a href="https://angelsouto.es" target="_blank">angelsouto.es</a> · <a href="mailto:info@angelsouto.es">info@angelsouto.es</a></p>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('report').innerHTML = reportHTML;
+            document.getElementById('report').classList.add('active');
+
+            // Hide progress bar
+            document.getElementById('progressBar').style.display = 'none';
+        }
+
+        function downloadPDF() {
+            const element = document.getElementById('reportContent');
+            const opt = {
+                margin: [10, 10, 10, 10],
+                filename: `diagnostico-marca-${formData.company.toLowerCase().replace(/\s+/g, '-')}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            // Temporarily hide CTA buttons for PDF
+            const ctaButtons = document.querySelector('.cta-buttons');
+            const originalDisplay = ctaButtons.style.display;
+            ctaButtons.style.display = 'none';
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                ctaButtons.style.display = originalDisplay;
+            });
+        }
+
+        // Initialize
+        showStep(1);
+    </script>
+</body>
+</html>
