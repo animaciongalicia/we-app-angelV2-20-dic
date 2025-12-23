@@ -2187,10 +2187,11 @@
             const clone = reportContent.cloneNode(true);
             clone.classList.add('pdf-mode');
             clone.style.width = '100%';
-            clone.style.maxWidth = '800px';
-            clone.style.margin = '0';
-            clone.style.padding = '20px';
+            clone.style.maxWidth = 'none';
+            clone.style.margin = '0 auto';
+            clone.style.padding = '30px';
             clone.style.background = 'white';
+            clone.style.boxSizing = 'border-box';
 
             // Remove CTA buttons from clone
             const ctaButtons = clone.querySelector('.cta-buttons');
@@ -2198,12 +2199,15 @@
                 ctaButtons.remove();
             }
 
+            // A4 at 96 DPI = 794px width, with margins = ~754px usable
+            const pdfWidth = 754;
+
             // Create a temporary container
             const tempContainer = document.createElement('div');
             tempContainer.style.position = 'absolute';
             tempContainer.style.left = '-9999px';
             tempContainer.style.top = '0';
-            tempContainer.style.width = '800px';
+            tempContainer.style.width = pdfWidth + 'px';
             tempContainer.style.background = 'white';
             tempContainer.appendChild(clone);
             document.body.appendChild(tempContainer);
@@ -2211,15 +2215,13 @@
             const opt = {
                 margin: [10, 10, 10, 10],
                 filename: `diagnostico-marca-${formData.company.toLowerCase().replace(/\s+/g, '-')}.pdf`,
-                image: { type: 'jpeg', quality: 0.95 },
+                image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: {
                     scale: 2,
                     useCORS: true,
                     logging: false,
                     scrollY: 0,
-                    scrollX: 0,
-                    width: 800,
-                    windowWidth: 800
+                    scrollX: 0
                 },
                 jsPDF: {
                     unit: 'mm',
