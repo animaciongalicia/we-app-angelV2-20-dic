@@ -2190,6 +2190,8 @@
             clone.style.maxWidth = 'none';
             clone.style.margin = '0 auto';
             clone.style.padding = '30px';
+            clone.style.paddingTop = '40px';
+            clone.style.paddingBottom = '40px';
             clone.style.background = 'white';
             clone.style.boxSizing = 'border-box';
 
@@ -2212,8 +2214,15 @@
             tempContainer.appendChild(clone);
             document.body.appendChild(tempContainer);
 
+            // Format date
+            const today = new Date().toLocaleDateString('es-ES', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+
             const opt = {
-                margin: [10, 10, 10, 10],
+                margin: [18, 10, 18, 10], // top, right, bottom, left - more margin for header/footer
                 filename: `diagnostico-marca-${formData.company.toLowerCase().replace(/\s+/g, '-')}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: {
@@ -2234,7 +2243,29 @@
                 }
             };
 
-            html2pdf().set(opt).from(clone).save().then(() => {
+            html2pdf().set(opt).from(clone).toPdf().get('pdf').then(function(pdf) {
+                const totalPages = pdf.internal.getNumberOfPages();
+                const pageWidth = pdf.internal.pageSize.getWidth();
+                const pageHeight = pdf.internal.pageSize.getHeight();
+
+                for (let i = 1; i <= totalPages; i++) {
+                    pdf.setPage(i);
+                    pdf.setFontSize(9);
+                    pdf.setTextColor(107, 107, 107); // gray color
+
+                    // Header - left: company name, right: date
+                    pdf.text(formData.company, 10, 10);
+                    pdf.text(today, pageWidth - 10, 10, { align: 'right' });
+
+                    // Footer - center: page number
+                    pdf.text(
+                        `Página ${i} de ${totalPages}`,
+                        pageWidth / 2,
+                        pageHeight - 8,
+                        { align: 'center' }
+                    );
+                }
+            }).save().then(() => {
                 document.body.removeChild(tempContainer);
             }).catch(err => {
                 console.error('Error generating PDF:', err);
