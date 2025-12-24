@@ -2567,101 +2567,135 @@
 
         function downloadPDF() {
             const reportContent = document.getElementById('reportContent');
-
-            // Clone the report content to isolate it from hidden wizard steps
-            const clone = reportContent.cloneNode(true);
-            clone.classList.add('pdf-mode');
-            clone.style.width = '100%';
-            clone.style.maxWidth = 'none';
-            clone.style.margin = '0 auto';
-            clone.style.padding = '30px';
-            clone.style.paddingTop = '20px';
-            clone.style.paddingBottom = '20px';
-            clone.style.background = 'white';
-            clone.style.boxSizing = 'border-box';
-
-            // Remove CTA buttons from clone
-            const ctaButtons = clone.querySelector('.cta-buttons');
-            if (ctaButtons) {
-                ctaButtons.remove();
+            if (!reportContent) {
+                alert('Error: No se encontró el contenido del informe.');
+                return;
             }
 
-            // A4 at 96 DPI = 794px width, with margins = ~754px usable
-            const pdfWidth = 754;
+            // Clone the report content
+            const clone = reportContent.cloneNode(true);
+            clone.classList.add('pdf-mode');
 
-            // Create a temporary container
+            // Estilos para A4
+            clone.style.cssText = `
+                width: 190mm !important;
+                max-width: 190mm !important;
+                padding: 10mm !important;
+                margin: 0 !important;
+                background: white !important;
+                box-sizing: border-box !important;
+                font-size: 10px !important;
+                line-height: 1.4 !important;
+            `;
+
+            // Remove CTA buttons and reduce spacing
+            const ctaButtons = clone.querySelector('.cta-buttons');
+            if (ctaButtons) ctaButtons.remove();
+
+            // Reducir tamaño de elementos para que quepan mejor
+            clone.querySelectorAll('.report-section').forEach(section => {
+                section.style.marginBottom = '12px';
+                section.style.pageBreakInside = 'avoid';
+            });
+
+            clone.querySelectorAll('h2').forEach(h => {
+                h.style.fontSize = '14px';
+                h.style.marginBottom = '8px';
+            });
+
+            clone.querySelectorAll('.dafo-item, .critical-point, .element-card, .benefit-card').forEach(item => {
+                item.style.padding = '10px';
+                item.style.marginBottom = '8px';
+                item.style.pageBreakInside = 'avoid';
+            });
+
+            // Container visible pero fuera de vista del usuario
             const tempContainer = document.createElement('div');
-            tempContainer.style.position = 'absolute';
-            tempContainer.style.left = '-9999px';
-            tempContainer.style.top = '0';
-            tempContainer.style.width = pdfWidth + 'px';
-            tempContainer.style.background = 'white';
+            tempContainer.id = 'pdf-temp-container';
+            tempContainer.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 210mm;
+                background: white;
+                z-index: -9999;
+                visibility: hidden;
+                pointer-events: none;
+            `;
             tempContainer.appendChild(clone);
             document.body.appendChild(tempContainer);
 
-            // Format date
             const today = new Date().toLocaleDateString('es-ES', {
                 day: 'numeric',
                 month: 'long',
                 year: 'numeric'
             });
 
-            const opt = {
-                margin: [15, 10, 15, 10],
-                filename: `diagnostico-marca-${formData.company.toLowerCase().replace(/\s+/g, '-')}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: {
-                    scale: 2,
-                    useCORS: true,
-                    logging: false,
-                    scrollY: 0,
-                    scrollX: 0
-                },
-                jsPDF: {
-                    unit: 'mm',
-                    format: 'a4',
-                    orientation: 'portrait'
-                },
-                pagebreak: {
-                    mode: ['avoid-all', 'css', 'legacy'],
-                    avoid: ['.dafo-item', '.critical-point', '.roadmap-phase', '.urgency-box', '.recommendation-box', '.next-steps', '.cta-section']
-                }
-            };
+            // Esperar a que se renderice el DOM
+            requestAnimationFrame(() => {
+                setTimeout(() => {
+                    const opt = {
+                        margin: [12, 8, 15, 8],
+                        filename: `diagnostico-marca-${formData.company.toLowerCase().replace(/\s+/g, '-')}.pdf`,
+                        image: { type: 'jpeg', quality: 0.90 },
+                        html2canvas: {
+                            scale: 1.5,
+                            useCORS: true,
+                            logging: false,
+                            backgroundColor: '#ffffff',
+                            windowWidth: 794
+                        },
+                        jsPDF: {
+                            unit: 'mm',
+                            format: 'a4',
+                            orientation: 'portrait'
+                        },
+                        pagebreak: {
+                            mode: ['css', 'legacy'],
+                            avoid: ['h2', 'h3', '.urgency-box']
+                        }
+                    };
 
-            const worker = html2pdf().set(opt).from(clone).toPdf();
+                    html2pdf().set(opt).from(clone).toPdf().get('pdf').then(function(pdf) {
+                        const totalPages = pdf.internal.getNumberOfPages();
+                        const pageWidth = pdf.internal.pageSize.getWidth();
+                        const pageHeight = pdf.internal.pageSize.getHeight();
 
-            worker.get('pdf').then(function(pdf) {
-                const totalPages = pdf.internal.getNumberOfPages();
-                const pageWidth = pdf.internal.pageSize.getWidth();
-                const pageHeight = pdf.internal.pageSize.getHeight();
+                        for (let i = 1; i <= totalPages; i++) {
+                            pdf.setPage(i);
+                            pdf.setFontSize(7);
+                            pdf.setTextColor(130, 130, 130);
 
-                for (let i = 1; i <= totalPages; i++) {
-                    pdf.setPage(i);
-                    pdf.setFontSize(8);
-                    pdf.setTextColor(107, 107, 107);
+                            // Header
+                            pdf.text(formData.company || 'Empresa', 8, 7);
+                            pdf.text(today, pageWidth - 8, 7, { align: 'right' });
 
-                    // Header
-                    pdf.text(formData.company, 10, 8);
-                    pdf.text(today, pageWidth - 10, 8, { align: 'right' });
+                            // Línea header
+                            pdf.setDrawColor(220, 220, 220);
+                            pdf.setLineWidth(0.3);
+                            pdf.line(8, 9, pageWidth - 8, 9);
 
-                    // Footer
-                    pdf.text(
-                        `Página ${i} de ${totalPages}`,
-                        pageWidth / 2,
-                        pageHeight - 7,
-                        { align: 'center' }
-                    );
-                }
-            });
+                            // Footer
+                            pdf.line(8, pageHeight - 12, pageWidth - 8, pageHeight - 12);
+                            pdf.text('angelsouto.es', 8, pageHeight - 8);
+                            pdf.text(`Página ${i} de ${totalPages}`, pageWidth / 2, pageHeight - 8, { align: 'center' });
+                            pdf.text('info@angelsouto.es', pageWidth - 8, pageHeight - 8, { align: 'right' });
+                        }
 
-            worker.save().then(function() {
-                document.body.removeChild(tempContainer);
-            }).catch(function(err) {
-                console.error('Error generating PDF:', err);
-                if (tempContainer.parentNode) {
-                    document.body.removeChild(tempContainer);
-                }
-                alert('Error al generar el PDF. Por favor, intenta de nuevo.');
+                        // Guardar y limpiar
+                        pdf.save(`diagnostico-marca-${formData.company.toLowerCase().replace(/\s+/g, '-')}.pdf`);
+
+                        if (tempContainer.parentNode) {
+                            document.body.removeChild(tempContainer);
+                        }
+                    }).catch(function(err) {
+                        console.error('Error generating PDF:', err);
+                        if (tempContainer.parentNode) {
+                            document.body.removeChild(tempContainer);
+                        }
+                        alert('Error al generar el PDF: ' + err.message);
+                    });
+                }, 300);
             });
         }
 
