@@ -2572,11 +2572,48 @@
                 return;
             }
 
-            // Clone the report content
+            // 1. Crear overlay que cubre toda la pantalla
+            const overlay = document.createElement('div');
+            overlay.id = 'pdf-overlay';
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(26, 26, 26, 0.95);
+                z-index: 99999;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                color: white;
+                font-family: 'DM Sans', sans-serif;
+            `;
+            overlay.innerHTML = `
+                <div style="text-align: center;">
+                    <div style="font-size: 48px; margin-bottom: 20px;">📄</div>
+                    <h2 style="color: #C9A227; font-family: 'Playfair Display', serif; margin-bottom: 10px;">Generando PDF...</h2>
+                    <p style="color: #888;">Por favor, espera unos segundos</p>
+                    <div style="margin-top: 20px; width: 200px; height: 4px; background: #333; border-radius: 2px; overflow: hidden;">
+                        <div style="width: 100%; height: 100%; background: linear-gradient(90deg, #C9A227, #E8D5A3); animation: pdfProgress 2s ease-in-out infinite;"></div>
+                    </div>
+                </div>
+                <style>
+                    @keyframes pdfProgress {
+                        0% { transform: translateX(-100%); }
+                        50% { transform: translateX(0%); }
+                        100% { transform: translateX(100%); }
+                    }
+                </style>
+            `;
+            document.body.appendChild(overlay);
+
+            // 2. Clonar el contenido del informe
             const clone = reportContent.cloneNode(true);
             clone.classList.add('pdf-mode');
 
-            // Estilos para A4
+            // Estilos para A4 - visible pero detrás del overlay
             clone.style.cssText = `
                 width: 190mm !important;
                 max-width: 190mm !important;
@@ -2588,11 +2625,11 @@
                 line-height: 1.4 !important;
             `;
 
-            // Remove CTA buttons and reduce spacing
+            // Eliminar botones CTA
             const ctaButtons = clone.querySelector('.cta-buttons');
             if (ctaButtons) ctaButtons.remove();
 
-            // Reducir tamaño de elementos para que quepan mejor
+            // Reducir tamaño de elementos
             clone.querySelectorAll('.report-section').forEach(section => {
                 section.style.marginBottom = '12px';
                 section.style.pageBreakInside = 'avoid';
@@ -2609,7 +2646,7 @@
                 item.style.pageBreakInside = 'avoid';
             });
 
-            // Container visible pero fuera de vista del usuario
+            // 3. Contenedor VISIBLE pero detrás del overlay
             const tempContainer = document.createElement('div');
             tempContainer.id = 'pdf-temp-container';
             tempContainer.style.cssText = `
@@ -2617,9 +2654,10 @@
                 top: 0;
                 left: 0;
                 width: 210mm;
+                max-height: 100vh;
+                overflow: auto;
                 background: white;
-                z-index: -9999;
-                visibility: hidden;
+                z-index: 99998;
                 pointer-events: none;
             `;
             tempContainer.appendChild(clone);
@@ -2631,7 +2669,17 @@
                 year: 'numeric'
             });
 
-            // Esperar a que se renderice el DOM
+            // Función de limpieza
+            function cleanup() {
+                if (tempContainer.parentNode) {
+                    document.body.removeChild(tempContainer);
+                }
+                if (overlay.parentNode) {
+                    document.body.removeChild(overlay);
+                }
+            }
+
+            // 4. Esperar al renderizado y generar PDF
             requestAnimationFrame(() => {
                 setTimeout(() => {
                     const opt = {
@@ -2643,7 +2691,9 @@
                             useCORS: true,
                             logging: false,
                             backgroundColor: '#ffffff',
-                            windowWidth: 794
+                            windowWidth: 794,
+                            scrollY: 0,
+                            scrollX: 0
                         },
                         jsPDF: {
                             unit: 'mm',
@@ -2682,20 +2732,16 @@
                             pdf.text('info@angelsouto.es', pageWidth - 8, pageHeight - 8, { align: 'right' });
                         }
 
-                        // Guardar y limpiar
+                        // 5. Guardar y limpiar
                         pdf.save(`diagnostico-marca-${formData.company.toLowerCase().replace(/\s+/g, '-')}.pdf`);
+                        cleanup();
 
-                        if (tempContainer.parentNode) {
-                            document.body.removeChild(tempContainer);
-                        }
                     }).catch(function(err) {
                         console.error('Error generating PDF:', err);
-                        if (tempContainer.parentNode) {
-                            document.body.removeChild(tempContainer);
-                        }
+                        cleanup();
                         alert('Error al generar el PDF: ' + err.message);
                     });
-                }, 300);
+                }, 500);
             });
         }
 
