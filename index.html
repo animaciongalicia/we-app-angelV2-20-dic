@@ -3098,7 +3098,7 @@
                         <p style="margin-bottom: 1.5rem; color: var(--gray);">El primer paso es una conversación. Sin compromiso, sin presión.</p>
                         <div class="cta-buttons">
                             <a href="mailto:info@angelsouto.es?subject=Consulta%20desde%20Diagnóstico%20de%20Marca%20-%20${encodeURIComponent(formData.company)}&body=Hola%20Ángel,%0A%0AAcabo%20de%20completar%20el%20diagnóstico%20de%20marca%20y%20me%20gustaría%20agendar%20una%20llamada%20para%20profundizar%20en%20mi%20caso.%0A%0AEmpresa:%20${encodeURIComponent(formData.company)}%0AContacto:%20${encodeURIComponent(formData.name)}%0ATeléfono:%20${encodeURIComponent(formData.phone)}%0A%0AGracias." class="btn btn-accent">Agendar llamada</a>
-                            <button class="btn btn-primary" onclick="downloadPDF()">Descargar PDF</button>
+                            <button class="btn btn-primary" onclick="downloadPDF()">📄 Descargar Informe</button>
                         </div>
                         <div class="cta-contact">
                             <p><a href="https://angelsouto.es" target="_blank">angelsouto.es</a> · <a href="mailto:info@angelsouto.es">info@angelsouto.es</a></p>
@@ -3116,10 +3116,194 @@
         }
 
         function downloadPDF() {
-            // Usar window.print() - solución nativa y 100% fiable
-            // El usuario puede elegir "Guardar como PDF" en el diálogo de impresión
-            // Los estilos @media print se encargan de formatear correctamente
-            window.print();
+            // Generar informe en texto plano formateado
+            const urgency = getUrgencyLevel();
+            const budgetRec = getBudgetRecommendation();
+            const companyAnalysis = getCompanyAgeAnalysis();
+            const sectorInsights = getSectorInsights();
+            const fortalezas = getDAFOFortalezas();
+            const debilidades = getDAFODebilidades();
+            const oportunidades = getDAFOOportunidades();
+            const amenazas = getDAFOAmenazas();
+            const fecha = new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+
+            let texto = `
+════════════════════════════════════════════════════════════════════
+                    DIAGNÓSTICO DE MARCA
+                    Informe Personalizado
+════════════════════════════════════════════════════════════════════
+
+Preparado para: ${formData.name}
+Empresa: ${formData.company}
+Fecha: ${fecha}
+
+────────────────────────────────────────────────────────────────────
+                    NIVEL DE URGENCIA: ${urgency.level}
+────────────────────────────────────────────────────────────────────
+
+${getPainPointMessage()}
+
+"Mañana es tarde. Tu competencia no está esperando."
+
+
+════════════════════════════════════════════════════════════════════
+                    1. RESUMEN EJECUTIVO
+════════════════════════════════════════════════════════════════════
+
+${formData.company} es una empresa de ${getBusinessTypeText()} con ${formData.companyAge === '<3' ? 'menos de 3' : formData.companyAge === '3-10' ? '3 a 10' : formData.companyAge === '10-25' ? '10 a 25' : 'más de 25'} años de trayectoria.
+
+${companyAnalysis.context}
+
+Elementos que requieren atención: ${getElementsText()}
+
+Antigüedad de la identidad visual actual: ${formData.brandAge === '0-3' ? '0-3 años' : formData.brandAge === '4-10' ? '4-10 años' : 'más de 10 años'}
+
+${formData.brandPain ? `\nEn tus propias palabras:\n"${formData.brandPain}"` : ''}
+
+
+════════════════════════════════════════════════════════════════════
+                    2. ANÁLISIS SECTORIAL
+════════════════════════════════════════════════════════════════════
+
+EL DESAFÍO EN ${getBusinessTypeText().toUpperCase()}:
+${sectorInsights.challenge}
+
+DATO CLAVE:
+${sectorInsights.opportunity}
+
+${sectorInsights.specific}
+
+ESTADÍSTICAS RELEVANTES:
+• 73% de consumidores confían más en marcas con imagen profesional
+• 60% deciden en los primeros 7 segundos basándose en lo visual
+• 23% más de ingresos en empresas con marca consistente
+
+
+════════════════════════════════════════════════════════════════════
+                    3. ANÁLISIS DAFO
+════════════════════════════════════════════════════════════════════
+
+FORTALEZAS
+──────────
+${fortalezas.map(f => `  ✓ ${f}`).join('\n')}
+
+DEBILIDADES
+───────────
+${debilidades.map(d => `  ✗ ${d}`).join('\n')}
+
+OPORTUNIDADES
+─────────────
+${oportunidades.map(o => `  → ${o}`).join('\n')}
+
+AMENAZAS
+────────
+${amenazas.map(a => `  ⚠ ${a}`).join('\n')}
+
+
+════════════════════════════════════════════════════════════════════
+                    4. OBJETIVOS IDENTIFICADOS
+════════════════════════════════════════════════════════════════════
+
+${formData.goals.map(g => {
+    const goalLabels = {
+        'premium': '• Posicionamiento premium: Transmitir calidad y justificar precios superiores',
+        'diferenciacion': '• Diferenciación: Destacar frente a competidores con identidad única',
+        'modernizar': '• Modernización: Actualizar imagen para conectar con audiencias actuales',
+        'confianza': '• Generar confianza: Construir credibilidad que acelere la decisión de compra',
+        'clientes': '• Atraer clientes: Mejorar captación y conversión de oportunidades',
+        'expansion': '• Expansión: Preparar la marca para crecer a nuevos mercados'
+    };
+    return goalLabels[g] || '';
+}).join('\n')}
+
+${formData.vision ? `\nTu visión a 2 años:\n"${formData.vision}"` : ''}
+${formData.inspiration ? `\nMarca que te inspira: ${formData.inspiration}` : ''}
+
+
+════════════════════════════════════════════════════════════════════
+                    5. ROADMAP RECOMENDADO
+════════════════════════════════════════════════════════════════════
+
+FASE 1: ESTRATEGIA Y FUNDAMENTOS (Semanas 1-4)
+──────────────────────────────────────────────
+  • Auditoría completa de marca actual
+  • Análisis de competencia
+  • Entrevistas de inmersión
+  • Definición de posicionamiento estratégico
+  • Briefing creativo detallado
+
+FASE 2: DESARROLLO DE IDENTIDAD (Semanas 5-10)
+──────────────────────────────────────────────
+  • Diseño de logo principal y versiones
+  • Definición de paleta cromática
+  • Selección tipográfica
+  • Elementos gráficos complementarios
+  • Manual de identidad corporativa
+
+FASE 3: IMPLEMENTACIÓN (Semanas 11-16)
+──────────────────────────────────────
+  • Aplicación en todos los puntos de contacto
+  • Papelería corporativa
+  • Presencia digital y redes sociales
+  • Formación al equipo
+  • Plan de lanzamiento
+
+
+════════════════════════════════════════════════════════════════════
+                    6. RECOMENDACIÓN E INVERSIÓN
+════════════════════════════════════════════════════════════════════
+
+PRESUPUESTO INDICADO: ${formData.budget === '3-5k' ? '3.000€ - 5.000€' : formData.budget === '5-10k' ? '5.000€ - 10.000€' : formData.budget === '10-20k' ? '10.000€ - 20.000€' : '+20.000€'}
+
+${budgetRec.text}
+
+${companyAnalysis.opportunity}
+
+ROI ESPERADO DE LA INVERSIÓN: ${budgetRec.roi}
+(Basado en estudios de impacto de rebranding en empresas similares)
+
+
+════════════════════════════════════════════════════════════════════
+                    7. PRÓXIMOS PASOS
+════════════════════════════════════════════════════════════════════
+
+  1. AGENDAR LLAMADA ESTRATÉGICA
+     30 minutos para profundizar en tu caso y resolver dudas
+
+  2. RECIBIR PROPUESTA PERSONALIZADA
+     Documento detallado con alcance, tiempos e inversión
+
+  3. COMENZAR LA TRANSFORMACIÓN
+     Inicio del proyecto con sesión de inmersión
+
+
+════════════════════════════════════════════════════════════════════
+                    CONTACTO
+════════════════════════════════════════════════════════════════════
+
+  Ángel Souto · Estrategia de Marca
+
+  Web: angelsouto.es
+  Email: info@angelsouto.es
+  Ubicación: A Coruña
+
+────────────────────────────────────────────────────────────────────
+  Este diagnóstico ha sido generado automáticamente basándose en
+  la información proporcionada. Para un análisis más profundo,
+  agenda una llamada estratégica sin compromiso.
+────────────────────────────────────────────────────────────────────
+`;
+
+            // Crear y descargar el archivo
+            const blob = new Blob([texto], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `diagnostico-marca-${formData.company.toLowerCase().replace(/\s+/g, '-')}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
         }
 
         // Initialize
