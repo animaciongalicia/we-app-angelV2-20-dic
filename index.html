@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- PDF se genera con window.print() + CSS @media print - sin dependencias externas -->
     <style>
         :root {
             --gold: #C9A227;
@@ -1146,9 +1146,283 @@
         .pdf-mode .report-section:nth-child(n+4) h2 {
             page-break-before: auto;
         }
+
+        /* Print header/footer - ocultos normalmente */
+        .print-header,
+        .print-footer {
+            display: none;
+        }
+
+        /* ============================================
+           ESTILOS DE IMPRESIÓN - @media print
+           ============================================ */
+        @media print {
+            /* Reset y configuración base */
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
+
+            /* Ocultar elementos no necesarios */
+            .header,
+            .progress-bar,
+            .wizard-step,
+            .cta-buttons,
+            .btn,
+            #pdf-overlay,
+            #pdf-temp-container {
+                display: none !important;
+            }
+
+            /* Encabezado de impresión */
+            .print-header {
+                display: flex !important;
+                justify-content: space-between;
+                align-items: center;
+                padding: 5mm 15mm;
+                border-bottom: 1px solid #C9A227;
+                font-size: 9pt;
+                color: #666;
+                background: white;
+            }
+
+            .print-header-left {
+                font-family: 'DM Sans', sans-serif;
+            }
+
+            .print-header-left strong {
+                color: #1A1A1A;
+            }
+
+            .print-header-right {
+                font-family: 'Playfair Display', serif;
+                color: #C9A227;
+            }
+
+            /* Pie de impresión */
+            .print-footer {
+                display: flex !important;
+                justify-content: space-between;
+                align-items: center;
+                padding: 5mm 15mm;
+                border-top: 1px solid #E0DDD8;
+                font-size: 8pt;
+                color: #888;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: white;
+            }
+
+            .print-footer-center {
+                text-align: center;
+            }
+
+            /* Mostrar solo el informe */
+            body {
+                background: white !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                font-size: 11pt !important;
+                line-height: 1.5 !important;
+            }
+
+            .container {
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            #report {
+                display: block !important;
+            }
+
+            #reportContent {
+                background: white !important;
+                padding: 15mm !important;
+                margin: 0 !important;
+                max-width: 100% !important;
+            }
+
+            /* Tipografía para impresión */
+            h1 {
+                font-size: 22pt !important;
+                margin-bottom: 5mm !important;
+                color: #1A1A1A !important;
+            }
+
+            h2 {
+                font-size: 14pt !important;
+                margin-top: 8mm !important;
+                margin-bottom: 4mm !important;
+                color: #1A1A1A !important;
+                border-bottom: 1px solid #C9A227 !important;
+                padding-bottom: 2mm !important;
+            }
+
+            h3 {
+                font-size: 12pt !important;
+                margin-bottom: 3mm !important;
+            }
+
+            p, li {
+                font-size: 10pt !important;
+                line-height: 1.5 !important;
+            }
+
+            /* Secciones del informe */
+            .report-section {
+                margin-bottom: 8mm !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+            }
+
+            .urgency-box {
+                background: #FFF3E0 !important;
+                border-left: 4px solid #C9A227 !important;
+                padding: 4mm !important;
+                margin: 5mm 0 !important;
+                page-break-inside: avoid !important;
+            }
+
+            /* DAFO */
+            .dafo-grid {
+                display: block !important;
+            }
+
+            .dafo-item {
+                margin-bottom: 5mm !important;
+                padding: 4mm !important;
+                border: 1px solid #ddd !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+            }
+
+            .dafo-item.fortalezas {
+                background: rgba(76, 175, 80, 0.1) !important;
+                border-left: 3px solid #4CAF50 !important;
+            }
+
+            .dafo-item.debilidades {
+                background: rgba(239, 83, 80, 0.1) !important;
+                border-left: 3px solid #EF5350 !important;
+            }
+
+            .dafo-item.oportunidades {
+                background: rgba(33, 150, 243, 0.1) !important;
+                border-left: 3px solid #2196F3 !important;
+            }
+
+            .dafo-item.amenazas {
+                background: rgba(255, 152, 0, 0.1) !important;
+                border-left: 3px solid #FF9800 !important;
+            }
+
+            .dafo-item h3 {
+                margin-bottom: 2mm !important;
+            }
+
+            /* Elementos de análisis */
+            .element-card,
+            .benefit-card,
+            .critical-point {
+                padding: 4mm !important;
+                margin-bottom: 4mm !important;
+                border: 1px solid #E0DDD8 !important;
+                background: #FAFAFA !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+            }
+
+            /* Stats box */
+            .stats-box {
+                display: flex !important;
+                flex-wrap: wrap !important;
+                gap: 3mm !important;
+                margin: 5mm 0 !important;
+            }
+
+            .stat-item {
+                flex: 1 1 45% !important;
+                padding: 3mm !important;
+                background: #F5F5F5 !important;
+                border: 1px solid #ddd !important;
+                text-align: center !important;
+            }
+
+            /* Roadmap */
+            .roadmap-phase {
+                margin-bottom: 5mm !important;
+                padding: 4mm !important;
+                border-left: 3px solid #C9A227 !important;
+                background: #FFFBF0 !important;
+                page-break-inside: avoid !important;
+            }
+
+            /* Investment breakdown */
+            .investment-grid {
+                display: block !important;
+            }
+
+            .investment-tier {
+                margin-bottom: 5mm !important;
+                padding: 4mm !important;
+                border: 1px solid #ddd !important;
+                page-break-inside: avoid !important;
+            }
+
+            /* Quote del usuario */
+            .user-quote {
+                font-style: italic !important;
+                padding: 4mm !important;
+                background: #F9F9F9 !important;
+                border-left: 3px solid #C9A227 !important;
+                margin: 5mm 0 !important;
+            }
+
+            /* Links - mostrar URL */
+            a[href]:after {
+                content: none !important;
+            }
+
+            /* Evitar cortes en medio de elementos */
+            .elements-grid,
+            .benefits-grid {
+                display: block !important;
+            }
+
+            /* Pie de página nativo del navegador */
+            @page {
+                size: A4;
+                margin: 15mm 10mm 20mm 10mm;
+            }
+
+            @page:first {
+                margin-top: 10mm;
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- Print Header - Solo visible al imprimir -->
+    <div class="print-header" id="printHeader">
+        <div class="print-header-left">
+            <strong>Ángel Souto</strong> · Estrategia de Marca
+        </div>
+        <div class="print-header-right">
+            Diagnóstico de Marca
+        </div>
+    </div>
+
+    <!-- Print Footer - Solo visible al imprimir -->
+    <div class="print-footer" id="printFooter">
+        <div class="print-footer-left">angelsouto.es</div>
+        <div class="print-footer-center">info@angelsouto.es</div>
+        <div class="print-footer-right"></div>
+    </div>
+
     <!-- Header -->
     <header class="header">
         <div>
@@ -2566,183 +2840,10 @@
         }
 
         function downloadPDF() {
-            const reportContent = document.getElementById('reportContent');
-            if (!reportContent) {
-                alert('Error: No se encontró el contenido del informe.');
-                return;
-            }
-
-            // 1. Crear overlay que cubre toda la pantalla
-            const overlay = document.createElement('div');
-            overlay.id = 'pdf-overlay';
-            overlay.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: rgba(26, 26, 26, 0.95);
-                z-index: 99999;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                color: white;
-                font-family: 'DM Sans', sans-serif;
-            `;
-            overlay.innerHTML = `
-                <div style="text-align: center;">
-                    <div style="font-size: 48px; margin-bottom: 20px;">📄</div>
-                    <h2 style="color: #C9A227; font-family: 'Playfair Display', serif; margin-bottom: 10px;">Generando PDF...</h2>
-                    <p style="color: #888;">Por favor, espera unos segundos</p>
-                    <div style="margin-top: 20px; width: 200px; height: 4px; background: #333; border-radius: 2px; overflow: hidden;">
-                        <div style="width: 100%; height: 100%; background: linear-gradient(90deg, #C9A227, #E8D5A3); animation: pdfProgress 2s ease-in-out infinite;"></div>
-                    </div>
-                </div>
-                <style>
-                    @keyframes pdfProgress {
-                        0% { transform: translateX(-100%); }
-                        50% { transform: translateX(0%); }
-                        100% { transform: translateX(100%); }
-                    }
-                </style>
-            `;
-            document.body.appendChild(overlay);
-
-            // 2. Clonar el contenido del informe
-            const clone = reportContent.cloneNode(true);
-            clone.classList.add('pdf-mode');
-
-            // Estilos para A4 - visible pero detrás del overlay
-            clone.style.cssText = `
-                width: 190mm !important;
-                max-width: 190mm !important;
-                padding: 10mm !important;
-                margin: 0 !important;
-                background: white !important;
-                box-sizing: border-box !important;
-                font-size: 10px !important;
-                line-height: 1.4 !important;
-            `;
-
-            // Eliminar botones CTA
-            const ctaButtons = clone.querySelector('.cta-buttons');
-            if (ctaButtons) ctaButtons.remove();
-
-            // Reducir tamaño de elementos
-            clone.querySelectorAll('.report-section').forEach(section => {
-                section.style.marginBottom = '12px';
-                section.style.pageBreakInside = 'avoid';
-            });
-
-            clone.querySelectorAll('h2').forEach(h => {
-                h.style.fontSize = '14px';
-                h.style.marginBottom = '8px';
-            });
-
-            clone.querySelectorAll('.dafo-item, .critical-point, .element-card, .benefit-card').forEach(item => {
-                item.style.padding = '10px';
-                item.style.marginBottom = '8px';
-                item.style.pageBreakInside = 'avoid';
-            });
-
-            // 3. Contenedor VISIBLE pero detrás del overlay
-            const tempContainer = document.createElement('div');
-            tempContainer.id = 'pdf-temp-container';
-            tempContainer.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 210mm;
-                max-height: 100vh;
-                overflow: auto;
-                background: white;
-                z-index: 99998;
-                pointer-events: none;
-            `;
-            tempContainer.appendChild(clone);
-            document.body.appendChild(tempContainer);
-
-            const today = new Date().toLocaleDateString('es-ES', {
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric'
-            });
-
-            // Función de limpieza
-            function cleanup() {
-                if (tempContainer.parentNode) {
-                    document.body.removeChild(tempContainer);
-                }
-                if (overlay.parentNode) {
-                    document.body.removeChild(overlay);
-                }
-            }
-
-            // 4. Esperar al renderizado y generar PDF
-            requestAnimationFrame(() => {
-                setTimeout(() => {
-                    const opt = {
-                        margin: [12, 8, 15, 8],
-                        filename: `diagnostico-marca-${formData.company.toLowerCase().replace(/\s+/g, '-')}.pdf`,
-                        image: { type: 'jpeg', quality: 0.90 },
-                        html2canvas: {
-                            scale: 1.5,
-                            useCORS: true,
-                            logging: false,
-                            backgroundColor: '#ffffff',
-                            windowWidth: 794,
-                            scrollY: 0,
-                            scrollX: 0
-                        },
-                        jsPDF: {
-                            unit: 'mm',
-                            format: 'a4',
-                            orientation: 'portrait'
-                        },
-                        pagebreak: {
-                            mode: ['css', 'legacy'],
-                            avoid: ['h2', 'h3', '.urgency-box']
-                        }
-                    };
-
-                    html2pdf().set(opt).from(clone).toPdf().get('pdf').then(function(pdf) {
-                        const totalPages = pdf.internal.getNumberOfPages();
-                        const pageWidth = pdf.internal.pageSize.getWidth();
-                        const pageHeight = pdf.internal.pageSize.getHeight();
-
-                        for (let i = 1; i <= totalPages; i++) {
-                            pdf.setPage(i);
-                            pdf.setFontSize(7);
-                            pdf.setTextColor(130, 130, 130);
-
-                            // Header
-                            pdf.text(formData.company || 'Empresa', 8, 7);
-                            pdf.text(today, pageWidth - 8, 7, { align: 'right' });
-
-                            // Línea header
-                            pdf.setDrawColor(220, 220, 220);
-                            pdf.setLineWidth(0.3);
-                            pdf.line(8, 9, pageWidth - 8, 9);
-
-                            // Footer
-                            pdf.line(8, pageHeight - 12, pageWidth - 8, pageHeight - 12);
-                            pdf.text('angelsouto.es', 8, pageHeight - 8);
-                            pdf.text(`Página ${i} de ${totalPages}`, pageWidth / 2, pageHeight - 8, { align: 'center' });
-                            pdf.text('info@angelsouto.es', pageWidth - 8, pageHeight - 8, { align: 'right' });
-                        }
-
-                        // 5. Guardar y limpiar
-                        pdf.save(`diagnostico-marca-${formData.company.toLowerCase().replace(/\s+/g, '-')}.pdf`);
-                        cleanup();
-
-                    }).catch(function(err) {
-                        console.error('Error generating PDF:', err);
-                        cleanup();
-                        alert('Error al generar el PDF: ' + err.message);
-                    });
-                }, 500);
-            });
+            // Usar window.print() - solución nativa y 100% fiable
+            // El usuario puede elegir "Guardar como PDF" en el diálogo de impresión
+            // Los estilos @media print se encargan de formatear correctamente
+            window.print();
         }
 
         // Initialize
