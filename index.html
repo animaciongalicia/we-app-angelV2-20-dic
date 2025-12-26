@@ -2547,7 +2547,7 @@
                         <p style="margin-bottom: 1.5rem; color: var(--gray);">El primer paso es una conversación. Sin compromiso, sin presión.</p>
                         <div class="cta-buttons">
                             <a href="mailto:info@angelsouto.es?subject=Consulta%20desde%20Diagnóstico%20de%20Marca%20-%20${encodeURIComponent(formData.company)}&body=Hola%20Ángel,%0A%0AAcabo%20de%20completar%20el%20diagnóstico%20de%20marca%20y%20me%20gustaría%20agendar%20una%20llamada%20para%20profundizar%20en%20mi%20caso.%0A%0AEmpresa:%20${encodeURIComponent(formData.company)}%0AContacto:%20${encodeURIComponent(formData.name)}%0ATeléfono:%20${encodeURIComponent(formData.phone)}%0A%0AGracias." class="btn btn-accent">Agendar llamada</a>
-                            <button class="btn btn-primary" onclick="downloadPDF()">Descargar Informe</button>
+                            <button class="btn btn-primary" onclick="downloadPDF()">Descargar Informe (HTML)</button>
                         </div>
                         <div class="cta-contact">
                             <p><a href="https://angelsouto.es" target="_blank">angelsouto.es</a> · <a href="mailto:info@angelsouto.es">info@angelsouto.es</a></p>
@@ -2565,6 +2565,7 @@
         }
 
         function downloadPDF() {
+            // Generar HTML completo descargable con el mismo contenido del informe web
             const urgency = getUrgencyLevel();
             const budgetRec = getBudgetRecommendation();
             const companyAnalysis = getCompanyAgeAnalysis();
@@ -2573,126 +2574,410 @@
             const debilidades = getDAFODebilidades();
             const oportunidades = getDAFOOportunidades();
             const amenazas = getDAFOAmenazas();
+            const elementsAnalysis = getElementsAnalysis();
+            const expectedBenefits = getExpectedBenefits();
+            const investmentBreakdown = getInvestmentBreakdown();
             const fecha = new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
 
-            const texto = `
-═══════════════════════════════════════════════════════════════
-                 DIAGNÓSTICO DE MARCA
-                 ${formData.company}
-═══════════════════════════════════════════════════════════════
+            const htmlContent = `<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnóstico de Marca - ${formData.company}</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: #F8F6F3;
+            color: #1A1A1A;
+            line-height: 1.6;
+            padding: 40px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        h1, h2, h3, h4 { font-family: 'Playfair Display', serif; font-weight: 600; }
+        .report-header { text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #C9A227; }
+        .report-header h1 { font-size: 2.2rem; margin-bottom: 10px; }
+        .report-header p { color: #6B6B6B; }
+        .urgency-box {
+            background: linear-gradient(135deg, ${urgency.color}, ${urgency.color}dd);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+        .urgency-level { font-size: 1.1rem; font-weight: 700; margin-bottom: 10px; }
+        .urgency-message { font-size: 1rem; line-height: 1.6; }
+        .urgency-quote { font-style: italic; margin-top: 15px; opacity: 0.9; }
+        .section { margin-bottom: 30px; }
+        .section h2 {
+            font-size: 1.4rem;
+            color: #1A1A1A;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #C9A227;
+        }
+        .section p { margin-bottom: 12px; }
+        .user-quote {
+            background: #F5F5F5;
+            border-left: 4px solid #C9A227;
+            padding: 15px 20px;
+            font-style: italic;
+            margin: 15px 0;
+        }
+        .stats-box {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-item {
+            background: white;
+            border: 1px solid #E0DDD8;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+        .stat-number { font-size: 2rem; font-weight: 700; color: #C9A227; }
+        .stat-label { font-size: 0.85rem; color: #6B6B6B; margin-top: 5px; }
+        .dafo-grid { display: grid; gap: 15px; }
+        .dafo-item {
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid;
+        }
+        .dafo-item.fortalezas { background: rgba(76, 175, 80, 0.08); border-color: #4CAF50; }
+        .dafo-item.debilidades { background: rgba(239, 83, 80, 0.08); border-color: #EF5350; }
+        .dafo-item.oportunidades { background: rgba(33, 150, 243, 0.08); border-color: #2196F3; }
+        .dafo-item.amenazas { background: rgba(255, 152, 0, 0.08); border-color: #FF9800; }
+        .dafo-item h3 { font-size: 1.1rem; margin-bottom: 10px; }
+        .dafo-item ul { padding-left: 20px; }
+        .dafo-item li { margin-bottom: 8px; }
+        .dafo-summary { font-size: 0.85rem; font-style: italic; color: #6B6B6B; margin-top: 12px; padding-top: 12px; border-top: 1px dashed #ddd; }
+        .element-card {
+            background: #FAFAFA;
+            border: 1px solid #E0DDD8;
+            border-left: 4px solid #C9A227;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 0 8px 8px 0;
+        }
+        .element-card h4 { margin-bottom: 10px; color: #1A1A1A; }
+        .element-card p { font-size: 0.95rem; margin-bottom: 8px; }
+        .critical-point {
+            background: #FFF8F8;
+            border: 1px solid #FFCDD2;
+            border-left: 4px solid #EF5350;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 0 8px 8px 0;
+        }
+        .critical-point h4 { color: #C62828; margin-bottom: 10px; }
+        .roadmap-phase {
+            background: #FFFBF0;
+            border: 1px solid #E0DDD8;
+            border-left: 4px solid #C9A227;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 0 8px 8px 0;
+        }
+        .phase-time { font-size: 0.8rem; color: #C9A227; font-weight: 600; text-transform: uppercase; }
+        .roadmap-phase h4 { margin: 5px 0 10px 0; }
+        .roadmap-phase ul { padding-left: 20px; }
+        .roadmap-phase li { margin-bottom: 5px; }
+        .benefits-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin: 20px 0; }
+        .benefit-card {
+            background: white;
+            border: 1px solid #E0DDD8;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .benefit-icon { font-size: 1.5rem; margin-bottom: 10px; }
+        .benefit-card h4 { font-size: 1rem; margin-bottom: 8px; }
+        .benefit-card p { font-size: 0.9rem; color: #6B6B6B; }
+        .investment-breakdown {
+            background: #F5F5F5;
+            border: 1px solid #E0DDD8;
+            padding: 25px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .investment-breakdown h4 { margin-bottom: 15px; }
+        .investment-includes { list-style: none; padding: 0; }
+        .investment-includes li { padding: 8px 0; padding-left: 25px; position: relative; }
+        .investment-includes li::before { content: "✓"; color: #4CAF50; position: absolute; left: 0; font-weight: bold; }
+        .investment-note { margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd; font-size: 0.95rem; }
+        .recommendation-box {
+            background: linear-gradient(135deg, #FFFBF0 0%, #FFF8E7 100%);
+            border: 2px solid #C9A227;
+            padding: 30px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+        .recommendation-box h3 { margin-bottom: 15px; }
+        .roi-highlight {
+            background: #1A1A1A;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .roi-highlight span { font-size: 0.9rem; }
+        .roi-highlight strong { font-size: 2rem; color: #C9A227; display: block; margin: 10px 0; }
+        .next-steps { margin: 20px 0; }
+        .next-step {
+            display: flex;
+            gap: 15px;
+            background: #FAFAFA;
+            border: 1px solid #E0DDD8;
+            padding: 20px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+        }
+        .next-step-number {
+            width: 30px;
+            height: 30px;
+            background: #C9A227;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        .next-step h4 { margin-bottom: 5px; }
+        .next-step p { color: #6B6B6B; font-size: 0.9rem; }
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #C9A227;
+            color: #6B6B6B;
+        }
+        .footer strong { color: #1A1A1A; }
+        @media print {
+            body { padding: 20px; background: white; }
+            .section, .dafo-item, .element-card, .critical-point, .roadmap-phase, .benefit-card, .next-step {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="report-header">
+        <h1>Diagnóstico de Marca</h1>
+        <p>Informe personalizado para <strong>${formData.name}</strong> · <strong>${formData.company}</strong></p>
+        <p style="margin-top: 8px;">Fecha: ${fecha}</p>
+    </div>
 
-Preparado para: ${formData.name}
-Fecha: ${fecha}
+    <div class="urgency-box">
+        <div class="urgency-level">⚠️ NIVEL DE URGENCIA: ${urgency.level}</div>
+        <div class="urgency-message">${getPainPointMessage()}</div>
+        <div class="urgency-quote">"Mañana es tarde. Tu competencia no está esperando."</div>
+    </div>
 
-───────────────────────────────────────────────────────────────
-  ⚠ NIVEL DE URGENCIA: ${urgency.level}
-───────────────────────────────────────────────────────────────
+    <div class="section">
+        <h2>Resumen ejecutivo</h2>
+        <p><strong>${formData.company}</strong> es una empresa de <strong>${getBusinessTypeText()}</strong> con <strong>${formData.companyAge === '<3' ? 'menos de 3' : formData.companyAge === '3-10' ? '3 a 10' : formData.companyAge === '10-25' ? '10 a 25' : 'más de 25'} años</strong> de trayectoria.</p>
+        <p>${companyAnalysis.context}</p>
+        <p>Los elementos que requieren atención prioritaria son: <strong>${getElementsText()}</strong>.</p>
+        ${formData.brandPain ? `<div class="user-quote">"${formData.brandPain}"</div>` : ''}
+    </div>
 
-${getPainPointMessage()}
+    <div class="section">
+        <h2>Análisis sectorial</h2>
+        <p><strong>El desafío en ${getBusinessTypeText()}:</strong> ${sectorInsights.challenge}</p>
+        <p><strong>Dato clave:</strong> ${sectorInsights.opportunity}</p>
+        <p>${sectorInsights.specific}</p>
+        <div class="stats-box">
+            <div class="stat-item">
+                <div class="stat-number">73%</div>
+                <div class="stat-label">de consumidores confían más en marcas con imagen profesional</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">60%</div>
+                <div class="stat-label">deciden en los primeros 7 segundos basándose en lo visual</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">23%</div>
+                <div class="stat-label">más de ingresos en empresas con marca consistente</div>
+            </div>
+        </div>
+    </div>
 
+    <div class="section">
+        <h2>Diagnóstico de elementos</h2>
+        ${elementsAnalysis.map(el => `
+            <div class="element-card">
+                <h4>🎯 ${el.name}</h4>
+                <p>${el.issue}</p>
+                <p><strong>Impacto:</strong> ${el.impact}</p>
+                <p><strong>Solución:</strong> ${el.solution}</p>
+            </div>
+        `).join('')}
+    </div>
 
-═══════════════════════════════════════════════════════════════
-  1. RESUMEN EJECUTIVO
-═══════════════════════════════════════════════════════════════
+    <div class="section">
+        <h2>Análisis DAFO</h2>
+        <div class="dafo-grid">
+            <div class="dafo-item fortalezas">
+                <h3>💪 FORTALEZAS</h3>
+                <ul>${fortalezas.map(f => `<li>${f}</li>`).join('')}</ul>
+                <p class="dafo-summary">Estos activos son la base sobre la que construir.</p>
+            </div>
+            <div class="dafo-item debilidades">
+                <h3>⚠️ DEBILIDADES</h3>
+                <ul>${debilidades.map(d => `<li>${d}</li>`).join('')}</ul>
+                <p class="dafo-summary">Cada debilidad identificada es una oportunidad de mejora.</p>
+            </div>
+            <div class="dafo-item oportunidades">
+                <h3>🚀 OPORTUNIDADES</h3>
+                <ul>${oportunidades.map(o => `<li>${o}</li>`).join('')}</ul>
+                <p class="dafo-summary">El mercado presenta ventanas de oportunidad para marcas que invierten en diferenciación.</p>
+            </div>
+            <div class="dafo-item amenazas">
+                <h3>🔥 AMENAZAS</h3>
+                <ul>${amenazas.map(a => `<li>${a}</li>`).join('')}</ul>
+                <p class="dafo-summary">Estas amenazas son reales pero gestionables con acción estratégica.</p>
+            </div>
+        </div>
+    </div>
 
-${formData.company} es una empresa de ${getBusinessTypeText()} con ${formData.companyAge === '<3' ? 'menos de 3' : formData.companyAge === '3-10' ? '3 a 10' : formData.companyAge === '10-25' ? '10 a 25' : 'más de 25'} años de trayectoria.
+    <div class="section">
+        <h2>Puntos críticos de intervención</h2>
+        <div class="critical-point">
+            <h4>🔴 Percepción de marca</h4>
+            <p>${formData.painPoint === 'premium' ? 'Tu marca no está comunicando el valor real de tus servicios.' : formData.painPoint === 'outdated' ? 'Una imagen anticuada genera desconfianza inconsciente.' : formData.painPoint === 'inconsistent' ? 'La inconsistencia visual fragmenta tu mensaje.' : 'La invisibilidad en tu mercado es el problema más costoso porque es silencioso.'}</p>
+        </div>
+        <div class="critical-point">
+            <h4>🔴 Coherencia visual</h4>
+            <p>Los elementos identificados (${getElementsText()}) funcionan como un sistema interconectado. La intervención debe ser coordinada y estratégica.</p>
+        </div>
+        <div class="critical-point">
+            <h4>🔴 Posicionamiento competitivo</h4>
+            <p>Sin una marca diferenciada, entras en la guerra del precio. Tu única defensa sostenible es crear preferencia.</p>
+        </div>
+    </div>
 
-${companyAnalysis.context}
+    <div class="section">
+        <h2>Roadmap recomendado</h2>
+        <div class="roadmap-phase">
+            <div class="phase-time">Fase 1: Estrategia (Semanas 1-4)</div>
+            <h4>Sentar las bases del proyecto</h4>
+            <ul>
+                <li>Auditoría completa de marca actual y análisis de competencia</li>
+                <li>Entrevistas de inmersión para entender la esencia del negocio</li>
+                <li>Definición de posicionamiento estratégico y personalidad de marca</li>
+                <li>Briefing creativo detallado con dirección de diseño</li>
+            </ul>
+        </div>
+        <div class="roadmap-phase">
+            <div class="phase-time">Fase 2: Identidad (Semanas 5-10)</div>
+            <h4>Creación del sistema visual</h4>
+            <ul>
+                <li>Diseño de logo principal y versiones alternativas</li>
+                <li>Definición de paleta cromática y tipográfica</li>
+                <li>Desarrollo de elementos gráficos complementarios</li>
+                <li>Creación de manual de identidad corporativa</li>
+            </ul>
+        </div>
+        <div class="roadmap-phase">
+            <div class="phase-time">Fase 3: Implementación (Semanas 11-16)</div>
+            <h4>Despliegue en todos los puntos de contacto</h4>
+            <ul>
+                <li>Diseño de papelería corporativa completa</li>
+                <li>Templates para redes sociales</li>
+                <li>Actualización de presencia web</li>
+                <li>Formación al equipo y plan de lanzamiento</li>
+            </ul>
+        </div>
+    </div>
 
-Elementos que requieren atención: ${getElementsText()}
-${formData.brandPain ? `\n"${formData.brandPain}"` : ''}
+    <div class="section">
+        <h2>Beneficios esperados</h2>
+        <div class="benefits-grid">
+            ${expectedBenefits.map(b => `
+                <div class="benefit-card">
+                    <div class="benefit-icon">${b.icon}</div>
+                    <h4>${b.title}</h4>
+                    <p>${b.description}</p>
+                </div>
+            `).join('')}
+        </div>
+    </div>
 
+    <div class="section">
+        <h2>Desglose de inversión</h2>
+        <p>Basado en tu presupuesto indicado de <strong>${formData.budget === '3-5k' ? '3.000€ - 5.000€' : formData.budget === '5-10k' ? '5.000€ - 10.000€' : formData.budget === '10-20k' ? '10.000€ - 20.000€' : '+20.000€'}</strong>:</p>
+        <div class="investment-breakdown">
+            <h4>Lo que incluiría tu proyecto:</h4>
+            <ul class="investment-includes">
+                ${investmentBreakdown.includes.map(item => `<li>${item}</li>`).join('')}
+            </ul>
+            <p class="investment-note">
+                <strong>Tiempo estimado:</strong> ${investmentBreakdown.timeline}<br>
+                ${investmentBreakdown.recommendation}
+            </p>
+        </div>
+    </div>
 
-═══════════════════════════════════════════════════════════════
-  2. ANÁLISIS SECTORIAL
-═══════════════════════════════════════════════════════════════
+    <div class="section">
+        <h2>Recomendación personalizada</h2>
+        <div class="recommendation-box">
+            <h3>Propuesta de valor para ${formData.company}</h3>
+            <p>${budgetRec.text}</p>
+            <p style="margin-top: 15px;">${companyAnalysis.opportunity}</p>
+            <div class="roi-highlight">
+                <span>ROI esperado de la inversión en marca</span>
+                <strong>${budgetRec.roi}</strong>
+                <p style="font-size: 0.8rem; opacity: 0.7;">Basado en estudios de impacto de rebranding en empresas similares</p>
+            </div>
+        </div>
+    </div>
 
-${sectorInsights.challenge}
+    <div class="section">
+        <h2>Próximos pasos</h2>
+        <div class="next-steps">
+            <div class="next-step">
+                <div class="next-step-number">1</div>
+                <div>
+                    <h4>Agendar llamada estratégica</h4>
+                    <p>30 minutos para profundizar en tu caso específico y resolver dudas</p>
+                </div>
+            </div>
+            <div class="next-step">
+                <div class="next-step-number">2</div>
+                <div>
+                    <h4>Recibir propuesta personalizada</h4>
+                    <p>Documento detallado con alcance, tiempos e inversión</p>
+                </div>
+            </div>
+            <div class="next-step">
+                <div class="next-step-number">3</div>
+                <div>
+                    <h4>Comenzar la transformación</h4>
+                    <p>Inicio del proyecto con sesión de inmersión</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
-Dato clave: ${sectorInsights.opportunity}
+    <div class="footer">
+        <p><strong>Ángel Souto</strong> · Estrategia de Marca</p>
+        <p style="margin-top: 10px;">angelsouto.es · info@angelsouto.es · A Coruña</p>
+        <p style="margin-top: 15px; font-size: 0.85rem;">Para imprimir a PDF: Ctrl+P (o Cmd+P en Mac) → "Guardar como PDF"</p>
+    </div>
+</body>
+</html>`;
 
-
-═══════════════════════════════════════════════════════════════
-  3. ANÁLISIS DAFO
-═══════════════════════════════════════════════════════════════
-
-FORTALEZAS
-${fortalezas.map(f => `  • ${f}`).join('\n')}
-
-DEBILIDADES
-${debilidades.map(d => `  • ${d}`).join('\n')}
-
-OPORTUNIDADES
-${oportunidades.map(o => `  • ${o}`).join('\n')}
-
-AMENAZAS
-${amenazas.map(a => `  • ${a}`).join('\n')}
-
-
-═══════════════════════════════════════════════════════════════
-  4. OBJETIVOS
-═══════════════════════════════════════════════════════════════
-
-${formData.goals.map(g => {
-    const labels = {
-        'premium': 'Posicionamiento premium',
-        'diferenciacion': 'Diferenciación competitiva',
-        'modernizar': 'Modernización de imagen',
-        'confianza': 'Generar confianza',
-        'clientes': 'Atraer nuevos clientes',
-        'expansion': 'Expansión de mercado'
-    };
-    return `  • ${labels[g] || g}`;
-}).join('\n')}
-${formData.vision ? `\nVisión a 2 años: "${formData.vision}"` : ''}
-
-
-═══════════════════════════════════════════════════════════════
-  5. ROADMAP
-═══════════════════════════════════════════════════════════════
-
-FASE 1 (Semanas 1-4): Estrategia
-  • Auditoría de marca actual
-  • Análisis de competencia
-  • Definición de posicionamiento
-
-FASE 2 (Semanas 5-10): Identidad
-  • Diseño de logo
-  • Paleta cromática y tipografía
-  • Manual de identidad
-
-FASE 3 (Semanas 11-16): Implementación
-  • Aplicaciones de marca
-  • Presencia digital
-  • Lanzamiento
-
-
-═══════════════════════════════════════════════════════════════
-  6. INVERSIÓN
-═══════════════════════════════════════════════════════════════
-
-Presupuesto: ${formData.budget === '3-5k' ? '3.000-5.000€' : formData.budget === '5-10k' ? '5.000-10.000€' : formData.budget === '10-20k' ? '10.000-20.000€' : '+20.000€'}
-
-${budgetRec.text}
-
-ROI esperado: ${budgetRec.roi}
-
-
-═══════════════════════════════════════════════════════════════
-  CONTACTO
-═══════════════════════════════════════════════════════════════
-
-  Ángel Souto · Estrategia de Marca
-  angelsouto.es | info@angelsouto.es
-  A Coruña
-
-───────────────────────────────────────────────────────────────
-`;
-
-            const blob = new Blob([texto], { type: 'text/plain;charset=utf-8' });
+            const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
-            link.download = `diagnostico-${formData.company.replace(/\s+/g, '-').toLowerCase()}.txt`;
+            link.download = `diagnostico-${formData.company.replace(/\s+/g, '-').toLowerCase()}.html`;
             link.click();
         }
 
